@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
-import styles from "../styles"; // Importe os estilos comuns
+import { styles } from "../styles"; // Importe os estilos comuns
 import { RootStackParamList } from "../types/routes.type";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { GAMES } from "../constants/GAMES";

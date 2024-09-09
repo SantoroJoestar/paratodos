@@ -13,6 +13,7 @@ export type RootStackParamList = {
     numbers: string[]
     betValues: BetType[];
   }
+  Cart: undefined,
   Login: undefined;
   MainMenu: undefined;
   MenuGames: undefined;

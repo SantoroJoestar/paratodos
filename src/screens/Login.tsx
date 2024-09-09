@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { RootStackParamList } from "../types/routes.type";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
+import { print } from "../utils/print";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
@@ -19,42 +20,47 @@ export const Login = ({ navigation }: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("../media/logoHeaderFooter.jpg")} // Caminho para a imagem
-        style={styles.logo}
-      />
-      <Text style={styles.title}>Login</Text>
-      <View style={styles.form}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Usuário</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite seu usuário"
-            placeholderTextColor="#ccc"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+    <>
+      <View style={styles.container}>
+        <Image
+          source={require("../media/logoHeaderFooter.jpg")} // Caminho para a imagem
+          style={styles.logo}
+        />
+        <Text style={styles.title}>Login</Text>
+        <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Usuário</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu usuário"
+              placeholderTextColor="#ccc"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Senha</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite sua senha"
+              placeholderTextColor="#ccc"
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={navigateToMainMenu}
+          >
+            <Text style={styles.actionButtonText}>Entrar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={print}>
+            <Text style={styles.actionButtonText}>Imprimir</Text>
+          </TouchableOpacity>
         </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Senha</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite sua senha"
-            placeholderTextColor="#ccc"
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </View>
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={navigateToMainMenu}
-        >
-          <Text style={styles.actionButtonText}>Entrar</Text>
-        </TouchableOpacity>
       </View>
-    </View>
+    </>
   );
 };
 
@@ -63,7 +69,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f0f0f5",
     justifyContent: "flex-start", // Alinhar itens ao topo
-    padding: 16,
+    // padding: 16,
   },
   logo: {
     width: 500, // Largura desejada da imagem

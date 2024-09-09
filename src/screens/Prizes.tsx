@@ -4,16 +4,27 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   StyleSheet,
-  Modal,
   Alert,
   FlatList,
-  ScrollView,
+  TextInputProps,
+  Platform,
 } from "react-native";
-import styles from "../styles"; // Import common styles
+
+import { styles } from "../styles"; // Import common styles
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
+import { MaskedText, MaskedTextInput } from "react-native-mask-text";
+import {
+  Actionsheet,
+  Button,
+  Input,
+  KeyboardAvoidingView,
+  useDisclose,
+} from "native-base";
+
+import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
+import { border } from "native-base/lib/typescript/theme/styled-system";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Prizes">;
 
@@ -23,14 +34,12 @@ export type BetType = {
 };
 
 export const Prizes = ({ navigation, route }: Props) => {
-  const [modalVisible, setModalVisible] = useState(true);
   const [selectedPrizes, setSelectedPrizes] = useState<string[]>([]);
   const [betAmount, setBetAmount] = useState("");
+
   const [betValues, setBetValues] = useState<BetType[]>([]);
 
-  const toggleModal = () => {
-    setModalVisible(!modalVisible);
-  };
+  const { isOpen, onOpen, onClose } = useDisclose();
 
   const handlePrizeSelection = (prizeNumber: string) => {
     if (selectedPrizes.includes(prizeNumber)) {
@@ -43,17 +52,17 @@ export const Prizes = ({ navigation, route }: Props) => {
   const handleConfirm = () => {
     if (selectedPrizes.length === 0) {
       Alert.alert("Erro", "Selecione pelo menos um prêmio.");
-    } else if (!betAmount) {
+    } else if (!betAmount || !Number(betAmount)) {
       Alert.alert("Erro", "Informe o valor da aposta.");
     } else {
       const newBet: BetType = {
         prizes: selectedPrizes,
-        betAmount: parseFloat(betAmount).toFixed(2),
+        betAmount: betAmount,
       };
       setBetValues([...betValues, newBet]);
       setSelectedPrizes([]);
       setBetAmount("");
-      toggleModal();
+      onClose();
     }
   };
 
@@ -68,100 +77,145 @@ export const Prizes = ({ navigation, route }: Props) => {
     }
   };
 
+  console.log("betAmount: ", betAmount);
+
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={toggleModal}
-        >
-          <View style={localStyles.centeredView}>
-            <View style={localStyles.modalView}>
-              <Text style={localStyles.modalText}>
-                Selecione os prêmios desejados:
-              </Text>
-              {["1", "2", "3", "4", "5"].map((prizeNumber) => (
-                <TouchableOpacity
-                  key={prizeNumber}
-                  style={[
-                    localStyles.prizeButton,
-                    selectedPrizes.includes(prizeNumber) &&
-                      localStyles.selectedPrize,
-                  ]}
-                  onPress={() => handlePrizeSelection(prizeNumber)}
-                >
-                  <Text
-                    style={localStyles.prizeButtonText}
-                  >{`${prizeNumber}º Prêmio`}</Text>
-                </TouchableOpacity>
-              ))}
-              <TextInput
-                style={localStyles.input}
-                placeholder="Informe o valor da aposta"
-                placeholderTextColor="#ccc"
-                keyboardType="numeric"
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      h={{
+        base: "400px",
+      }}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+    >
+      <Actionsheet isOpen={isOpen} onClose={onClose}>
+        <Actionsheet.Content>
+          <View
+            style={{ paddingHorizontal: 20, paddingTop: 30, width: "100%" }}
+          >
+            <Text style={localStyles.modalText}>
+              Selecione os prêmios desejados:
+            </Text>
+            <View style={{ paddingVertical: 20 }}>
+              <MaskedTextInput
+                type="currency"
+                options={{
+                  prefix: "R$ ",
+                  decimalSeparator: ",",
+                  groupSeparator: ".",
+                  precision: 2,
+                }}
                 value={betAmount}
-                onChangeText={setBetAmount}
+                onChangeText={(text, textRaw) => {
+                  setBetAmount(textRaw ? textRaw : "0");
+                }}
+                style={
+                  {
+                    fontSize: 30,
+                    fontWeight: "600",
+                    borderWidth: 1,
+                    borderColor: "blue",
+                    borderRadius: 7,
+                    paddingHorizontal: 20,
+                    paddingVertical: 6,
+                  } as TextInputProps["style"]
+                }
+                keyboardType="numeric"
               />
-              <TouchableOpacity
-                style={[styles.actionButton, localStyles.confirmButton]}
-                onPress={handleConfirm}
-              >
-                <Text style={styles.actionButtonText}>Confirmar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, localStyles.closeButton]}
-                onPress={toggleModal}
-              >
-                <Text style={styles.actionButtonText}>Fechar</Text>
-              </TouchableOpacity>
             </View>
+            {["1", "2", "3", "4", "5"].map((prizeNumber) => (
+              <Button
+                key={prizeNumber}
+                style={[
+                  localStyles.prizeButton,
+                  selectedPrizes.includes(prizeNumber) &&
+                    localStyles.selectedPrize,
+                ]}
+                onPress={() => handlePrizeSelection(prizeNumber)}
+              >
+                <Text
+                  style={localStyles.prizeButtonText}
+                >{`${prizeNumber}º Prêmio`}</Text>
+              </Button>
+            ))}
           </View>
-        </Modal>
-        <View style={styles.container}>
-          <Text style={styles.title}>Você está participando dos prêmios:</Text>
-          <FlatList
-            data={betValues}
-            renderItem={({ item }) => (
-              <View style={localStyles.betItem}>
-                <Text style={localStyles.betItemText}>
-                  Prêmios: {item.prizes.join(", ")}
-                </Text>
-                <Text style={localStyles.betItemText}>
-                  Valor da Aposta: R$ {item.betAmount}
-                </Text>
-              </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-          />
-          <TouchableOpacity
+          <View style={{ flexDirection: "row" }}>
+            <Button
+              style={[styles.actionButton, localStyles.closeButton]}
+              onPress={onClose}
+            >
+              <Text style={styles.actionButtonText}>Fechar</Text>
+            </Button>
+            <Button
+              style={[styles.actionButton, localStyles.confirmButton]}
+              onPress={handleConfirm}
+            >
+              <Text style={styles.actionButtonText}>Confirmar</Text>
+            </Button>
+          </View>
+        </Actionsheet.Content>
+      </Actionsheet>
+      <View style={styles.container}>
+        <Text style={styles.title}>
+          Você está participando dos seguintes prêmios
+        </Text>
+
+        <FlatList
+          data={betValues}
+          style={{ flex: 1 }}
+          renderItem={({ item }) => (
+            <View style={localStyles.betItem}>
+              <Text style={localStyles.betItemText}>
+                Prêmios: {numbersSelectedFormated(item.prizes)}
+              </Text>
+              <Text style={localStyles.betItemText}>
+                Valor:{" "}
+                <MaskedText
+                  type="currency"
+                  options={{
+                    prefix: "R$ ",
+                    decimalSeparator: ",",
+                    groupSeparator: ".",
+                    precision: 2,
+                  }}
+                >
+                  {item.betAmount}
+                </MaskedText>
+              </Text>
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+        <View style={{ flexDirection: "row" }}>
+          <Button
+            style={[styles.actionButton, localStyles.prizesButton]}
+            onPress={onOpen}
+          >
+            <Text style={styles.actionButtonText}>Prêmios</Text>
+          </Button>
+          <Button
             style={[styles.actionButton, localStyles.proceedButton]}
             onPress={handleProceed}
           >
             <Text style={styles.actionButtonText}>Prosseguir</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, localStyles.prizesButton]}
-            onPress={toggleModal}
-          >
-            <Text style={styles.actionButtonText}>Prêmios</Text>
-          </TouchableOpacity>
+          </Button>
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const localStyles = StyleSheet.create({
   centeredView: {
-    flex: 1,
+    // flex: 1,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 22,
   },
   modalView: {
+    // flex: 1,
+    // flexDirection: "column",
+    width: "100%",
     margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
@@ -183,12 +237,7 @@ const localStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   prizeButton: {
-    backgroundColor: "#6c63ff",
-    padding: 10,
-    marginVertical: 5,
-    borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
+    marginVertical: 7,
   },
   prizeButtonText: {
     color: "white",
@@ -221,11 +270,11 @@ const localStyles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 10,
     alignItems: "center",
   },
   prizesButton: {
-    backgroundColor: "#6c63ff",
+    backgroundColor: "#00aa1c",
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 10,
@@ -233,14 +282,16 @@ const localStyles = StyleSheet.create({
     alignItems: "center",
   },
   betItem: {
+    width: "100%",
     borderWidth: 1,
+    backgroundColor: "#fff",
     borderColor: "#ccc",
     borderRadius: 8,
-    padding: 10,
+    padding: 15,
     marginBottom: 10,
   },
   betItemText: {
-    fontSize: 16,
+    fontSize: 20,
     marginBottom: 5,
   },
   scrollContainer: {

@@ -1,20 +1,19 @@
 /* eslint-disable prettier/prettier */
 import { StyleSheet } from 'react-native';
 
-export default StyleSheet.create({
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 16,
+    padding: 10,
     backgroundColor: '#f0f0f5',
+    flexDirection: "column"
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 27,
     fontWeight: 'bold',
     marginBottom: 24,
     textAlign: 'center',
@@ -50,6 +49,9 @@ export default StyleSheet.create({
   actionButton: {
     backgroundColor: '#6c63ff',
     paddingVertical: 14,
+    flex: 1,
+    marginHorizontal: 10,
+    marginTop: 50,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',

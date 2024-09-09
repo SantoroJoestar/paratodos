@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   OTPInputContainer,
   SplitOTPBoxesContainer,
@@ -6,14 +6,16 @@ import {
   SplitBoxes,
   SplitBoxText,
   SplitBoxesFocused,
+  SplitBoxesGap,
+  gap,
 } from "./styles";
 import { TextInput } from "react-native";
 
 type OTPInputProps = {
   code: string;
   format: string;
-  setCode: React.Dispatch<React.SetStateAction<string>>;
-  setIsPinReady: React.Dispatch<React.SetStateAction<boolean>>;
+  setCode: (code: OTPInputProps["code"]) => void;
+  setIsPinReady?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const OTPInput = ({ code, format, setCode, setIsPinReady }: OTPInputProps) => {
@@ -32,6 +34,7 @@ const OTPInput = ({ code, format, setCode, setIsPinReady }: OTPInputProps) => {
   };
 
   useEffect(() => {
+    if (!setIsPinReady) return;
     // update pin ready status
     setIsPinReady(code.length === format.length);
     // clean up function
@@ -39,6 +42,10 @@ const OTPInput = ({ code, format, setCode, setIsPinReady }: OTPInputProps) => {
       setIsPinReady(false);
     };
   }, [code]);
+
+  useEffect(() => {
+    handleOnPress();
+  }, []);
 
   const formatCode = (inputCode: string) => {
     let formattedCode = "";
@@ -60,14 +67,24 @@ const OTPInput = ({ code, format, setCode, setIsPinReady }: OTPInputProps) => {
   };
 
   const handleChangeText = (inputCode: string) => {
-    const cleanedInput = inputCode.replace(/-/g, ""); // Remove os traços do input
-    const formattedCode = formatCode(cleanedInput); // Formata o código com os traços
+    // Remove os traços do input para processamento
+    let cleanedInput = inputCode.replace(/-/g, "");
+
+    if (inputCode.length < code.length && code[code.length - 1] === "-")
+      cleanedInput = cleanedInput.slice(0, -1);
+
+    // Atualiza o código formatado com base no código limpo
+    const formattedCode = formatCode(cleanedInput);
     setCode(formattedCode);
   };
 
   const boxDigit = (_: string, index: number) => {
     const emptyInput = "";
-    const digit = code[index] || emptyInput;
+    let digit = code[index] || emptyInput;
+
+    const isGap = format[index] === "-";
+
+    if (isGap) digit = "-";
 
     const isCurrentValue = index === code.length;
     const isLastValue = index === format.length - 1;
@@ -75,12 +92,16 @@ const OTPInput = ({ code, format, setCode, setIsPinReady }: OTPInputProps) => {
 
     const isValueFocused = isCurrentValue || (isLastValue && isCodeComplete);
 
-    const StyledSplitBoxes =
+    let StyledSplitBoxes =
       isInputBoxFocused && isValueFocused ? SplitBoxesFocused : SplitBoxes;
 
+    if (isGap) StyledSplitBoxes = SplitBoxesGap;
+
     return (
-      <StyledSplitBoxes key={index}>
-        <SplitBoxText>{digit}</SplitBoxText>
+      <StyledSplitBoxes style={{ marginHorizontal: gap / 2 }} key={index}>
+        <SplitBoxText style={{ fontSize: isGap ? 35 : 20 }}>
+          {digit}
+        </SplitBoxText>
       </StyledSplitBoxes>
     );
   };
@@ -92,9 +113,13 @@ const OTPInput = ({ code, format, setCode, setIsPinReady }: OTPInputProps) => {
       </SplitOTPBoxesContainer>
       <TextInputHidden
         value={code}
+        keyboardType="numeric"
+        autoFocus
         onChangeText={handleChangeText}
         ref={inputRef}
         onBlur={handleOnBlur}
+        caretHidden={true} // Esconde o cursor
+        selectTextOnFocus={false}
       />
     </OTPInputContainer>
   );

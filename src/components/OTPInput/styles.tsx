@@ -15,31 +15,48 @@ export const TextInputHidden = styled(TextInput)`
   margin-top: 50px;
   color: white; */
   position: absolute;
-  opacity: 0.5;
+  opacity: 0;
+  width: 100%;
 `;
 
+export const gap = 10;
+
 export const SplitOTPBoxesContainer = styled.Pressable`
-  width: 80%;
+  width: 100%;
+  height: 50px;
+  padding-left: ${gap / -2}px;
+  padding-right: ${gap / -2}px;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: center;
 `;
+
 export const SplitBoxes = styled.View`
   border-color: #e5e5e5;
+  background-color: #ffffff89;
   border-width: 2px;
   border-radius: 5px;
   padding: 12px;
-  min-width: 50px;
+  width: 50px;
+  height: 50px;
+`;
+
+export const SplitBoxesGap = styled.View`
+  border-color: transparent;
+  border-width: 2px;
+  border-radius: 5px;
+  width: 20px;
+  height: 50px;
 `;
 
 export const SplitBoxText = styled.Text`
   font-size: 20px;
   text-align: center;
-  color: #e5e5e5;
+  color: black;
 `;
 
 export const SplitBoxesFocused = styled(SplitBoxes)`
-  border-color: #ecdbba;
-  background-color: grey;
+  border-color: blue;
+  background-color: #f0ecff;
 `;
 
 export const ButtonContainer = styled.TouchableOpacity`

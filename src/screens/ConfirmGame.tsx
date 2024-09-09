@@ -10,9 +10,15 @@ import {
   ScrollView,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import styles from "../styles"; // Importe os estilos comuns
+import { styles } from "../styles"; // Importe os estilos comuns
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
+import { MaskedText } from "react-native-mask-text";
+import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
+import { Button } from "native-base";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { useCart } from "../providers/CartContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
@@ -22,7 +28,10 @@ const HourTimesInitial = {
 };
 
 export const ConfirmGame = ({ route, navigation }: Props) => {
+  console.log("route.params: ", route.params);
   const { numbers, betValues } = route.params;
+
+  const { setItems } = useCart();
 
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -51,9 +60,9 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
       return;
     }
 
-    // Aqui você pode adicionar a lógica para confirmar as apostas
-    Alert.alert("Apostas confirmadas");
-    navigation.navigate("MainMenu");
+    setItems((prev) => [...prev, ...betValues]);
+
+    navigation.navigate("Cart");
     // Navegar para a próxima tela ou realizar outras ações necessárias
   };
 
@@ -67,27 +76,27 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <View style={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>Finalizar Jogo</Text>
         <TouchableOpacity
           style={localStyles.datePickerButton}
           onPress={() => setShowDatePicker(true)}
         >
           <Text style={localStyles.datePickerButtonText}>
-            {date.toLocaleDateString()}
+            {format(date, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
           </Text>
         </TouchableOpacity>
         {showDatePicker && (
           <DateTimePicker
             value={date}
             mode="date"
-            display="default"
+            display="calendar"
             onChange={onChange}
+            timeZoneName="America/Sao_Paulo"
           />
         )}
         <View style={localStyles.timeContainer}>
-          {["14h", "19h"].map((time) => (
+          {Object.keys(HourTimesInitial).map((time) => (
             <TouchableOpacity
               key={time}
               style={[
@@ -103,7 +112,9 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
         </View>
         <View style={localStyles.summaryContainer}>
           <Text style={localStyles.summaryTitle}>Resumo das Apostas:</Text>
+
           <FlatList
+            style={{ flex: 1 }}
             data={betValues}
             renderItem={({ item }) => (
               <View style={localStyles.betSummary}>
@@ -111,25 +122,38 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
                   Números: {numbers.join(", ")}
                 </Text>
                 <Text style={localStyles.summaryText}>
-                  Prêmios: {item.prizes.join(", ")}
+                  Prêmios: {numbersSelectedFormated(item.prizes)}
                 </Text>
+
                 <Text style={localStyles.summaryText}>
-                  Valor: R$ {item.betAmount}
+                  Valor:{" "}
+                  <MaskedText
+                    type="currency"
+                    options={{
+                      prefix: "R$ ",
+                      decimalSeparator: ",",
+                      groupSeparator: ".",
+                      precision: 2,
+                    }}
+                  >
+                    {item.betAmount}
+                  </MaskedText>
                 </Text>
               </View>
             )}
             keyExtractor={(item, index) => index.toString()}
           />
+
           {/* Campo para mostrar o valor total das apostas */}
           <Text style={localStyles.totalText}>
             Valor Total das Apostas: R$ {calculateTotalBetAmount()}
           </Text>
         </View>
-        <TouchableOpacity style={styles.actionButton} onPress={confirmBets}>
+        <Button onPress={confirmBets}>
           <Text style={styles.actionButtonText}>Confirmar</Text>
-        </TouchableOpacity>
+        </Button>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -151,7 +175,7 @@ const localStyles = StyleSheet.create({
   timeContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginVertical: 20,
+    marginVertical: 5,
   },
   timeButton: {
     backgroundColor: "#ccc",
@@ -170,6 +194,7 @@ const localStyles = StyleSheet.create({
     fontWeight: "bold",
   },
   summaryContainer: {
+    flex: 1,
     marginVertical: 20,
   },
   summaryTitle: {
@@ -179,9 +204,14 @@ const localStyles = StyleSheet.create({
   },
   betSummary: {
     marginBottom: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: "white",
+    width: "100%",
   },
   summaryText: {
-    fontSize: 16,
+    fontSize: 20,
+    margin: 2,
   },
   totalText: {
     marginTop: 10,

@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import styles from "../styles"; // Importe os estilos comuns
+import { styles } from "../styles"; // Importe os estilos comuns
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
+import { BottomCart } from "../components/BottomCart";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MainMenu">;
 
@@ -15,23 +16,25 @@ export const MainMenu = ({ navigation }: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={localStyles.menuButton}
-        onPress={() => navigation.navigate("MenuGames")}
-      >
-        <Text style={localStyles.menuButtonText}>Jogos</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={localStyles.menuButton}
-        onPress={() => navigation.navigate("Profile")}
-      >
-        <Text style={localStyles.menuButtonText}>Meu Perfil</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={localStyles.menuButton} onPress={handleLogout}>
-        <Text style={localStyles.menuButtonText}>Sair</Text>
-      </TouchableOpacity>
-    </View>
+    <BottomCart navigation={navigation}>
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={localStyles.menuButton}
+          onPress={() => navigation.navigate("MenuGames")}
+        >
+          <Text style={localStyles.menuButtonText}>Jogos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={localStyles.menuButton}
+          onPress={() => navigation.navigate("Profile")}
+        >
+          <Text style={localStyles.menuButtonText}>Meu Perfil</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={localStyles.menuButton} onPress={handleLogout}>
+          <Text style={localStyles.menuButtonText}>Sair</Text>
+        </TouchableOpacity>
+      </View>
+    </BottomCart>
   );
 };
 

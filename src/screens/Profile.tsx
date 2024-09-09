@@ -9,78 +9,85 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import styles from "../styles"; // Importe os estilos comuns
+import { styles } from "../styles"; // Importe os estilos comuns
+import { BottomCart } from "../components/BottomCart";
+import { RootStackParamList } from "../types/routes.type";
+import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 
-export const Profile = () => {
+type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
+
+export const Profile = ({ navigation }: Props) => {
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Meu Perfil</Text>
-        <View style={styles.form}>
-          <TouchableOpacity style={localStyles.profileImageContainer}>
-            <Image
-              style={localStyles.profileImage}
-              source={{ uri: "https://via.placeholder.com/150" }} // Substitua pela URL da foto do usuário
-            />
-          </TouchableOpacity>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Nome</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Digite seu nome"
-              placeholderTextColor="#ccc"
-            />
+    <BottomCart navigation={navigation}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Meu Perfil 2</Text>
+          <View style={styles.form}>
+            <TouchableOpacity style={localStyles.profileImageContainer}>
+              <Image
+                style={localStyles.profileImage}
+                source={{ uri: "https://via.placeholder.com/150" }} // Substitua pela URL da foto do usuário
+              />
+            </TouchableOpacity>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Nome</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Digite seu nome"
+                placeholderTextColor="#ccc"
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Login</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Digite seu login"
+                placeholderTextColor="#ccc"
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Endereço</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Digite seu endereço"
+                placeholderTextColor="#ccc"
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Senha</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Digite sua senha"
+                placeholderTextColor="#ccc"
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Nova Senha</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Digite sua nova senha"
+                placeholderTextColor="#ccc"
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            <TouchableOpacity style={styles.actionButton}>
+              <Text style={styles.actionButtonText}>Salvar</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Login</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Digite seu login"
-              placeholderTextColor="#ccc"
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Endereço</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Digite seu endereço"
-              placeholderTextColor="#ccc"
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Senha</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Digite sua senha"
-              placeholderTextColor="#ccc"
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Nova Senha</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Digite sua nova senha"
-              placeholderTextColor="#ccc"
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>Salvar</Text>
-          </TouchableOpacity>
-        </View>
 
-        <View style={localStyles.footer}>
-          <Text style={localStyles.footerText}>
-            Desenvolvido por Evolved World
-          </Text>
+          <View style={localStyles.footer}>
+            <Text style={localStyles.footerText}>
+              Desenvolvido por Evolved World
+            </Text>
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </BottomCart>
   );
 };
 
