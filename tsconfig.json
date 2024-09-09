@@ -5,7 +5,7 @@
     "src/**/*.tsx",
     "src/**/*.js",
     "src/**/*.jsx"
-, "src/App.js"  ],
+, "src/App.tsx", "src/components/OTPInput"  ],
   "exclude": [
     "node_modules",
     "babel.config.js",

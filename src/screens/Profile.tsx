@@ -1,9 +1,17 @@
 /* eslint-disable prettier/prettier */
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
-import styles from '../styles'; // Importe os estilos comuns
+import React from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Image,
+} from "react-native";
+import styles from "../styles"; // Importe os estilos comuns
 
-const ProfileScreen = () => {
+export const Profile = () => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
@@ -12,7 +20,7 @@ const ProfileScreen = () => {
           <TouchableOpacity style={localStyles.profileImageContainer}>
             <Image
               style={localStyles.profileImage}
-              source={{ uri: 'https://via.placeholder.com/150' }} // Substitua pela URL da foto do usuário
+              source={{ uri: "https://via.placeholder.com/150" }} // Substitua pela URL da foto do usuário
             />
           </TouchableOpacity>
           <View style={styles.inputContainer}>
@@ -67,9 +75,10 @@ const ProfileScreen = () => {
         </View>
 
         <View style={localStyles.footer}>
-          <Text style={localStyles.footerText}>Desenvolvido por Evolved World</Text>
+          <Text style={localStyles.footerText}>
+            Desenvolvido por Evolved World
+          </Text>
         </View>
-
       </View>
     </ScrollView>
   );
@@ -77,7 +86,7 @@ const ProfileScreen = () => {
 
 const localStyles = StyleSheet.create({
   profileImageContainer: {
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 20,
   },
   profileImage: {
@@ -85,19 +94,17 @@ const localStyles = StyleSheet.create({
     height: 150,
     borderRadius: 75,
     borderWidth: 2,
-    borderColor: '#6c63ff',
+    borderColor: "#6c63ff",
   },
 
   footer: {
     padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff', // Adiciona fundo branco para melhor visibilidade
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff", // Adiciona fundo branco para melhor visibilidade
   },
   footerText: {
     fontSize: 12,
-    color: '#000', // Texto preto
+    color: "#000", // Texto preto
   },
 });
-
-export default ProfileScreen;
