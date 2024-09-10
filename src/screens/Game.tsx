@@ -103,6 +103,7 @@ const localStyles = StyleSheet.create({
     borderColor: "#ccc",
     paddingHorizontal: 10,
     marginBottom: 10,
+    color: 'black',
   },
   numberItem: {
     paddingHorizontal: 30,

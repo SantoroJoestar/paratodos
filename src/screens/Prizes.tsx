@@ -225,7 +225,7 @@ const localStyles = StyleSheet.create({
     marginVertical: 7,
   },
   prizeButtonText: {
-    color: "white",
+    color: "black",
     fontWeight: "bold",
     fontSize: 16,
   },
