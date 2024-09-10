@@ -10,12 +10,13 @@ export const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
+    padding: 10,
     justifyContent: 'center',
   },
   title: {
-    fontSize: 27,
+    fontSize: 17,
     fontWeight: 'bold',
-    marginBottom: 24,
+    marginBottom: 10,
     textAlign: 'center',
     color: '#6c63ff',
   },

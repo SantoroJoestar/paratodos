@@ -1,12 +1,22 @@
 import React, { createContext, useContext, useState } from "react";
-import { BetType } from "screens/Prizes";
+import { GameModel } from "../models/GameModel";
+import { GameType } from "../types/game.type";
 
 const _controllerCart = () => {
-  const [items, setItems] = useState<BetType[]>([]);
+  const [currentGame, setCurrentGame] = useState<GameType>(GameModel());
+
+  const [items, setItems] = useState<GameType[]>([]);
+
+  const removeFromCart = (index: number) => {
+    setItems((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return {
+    currentGame,
+    setCurrentGame,
     items,
     setItems,
+    removeFromCart,
   };
 };
 

@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   FlatList,
   StyleSheet,
@@ -15,34 +14,44 @@ import { RootStackParamList } from "../types/routes.type";
 import { GAMES } from "../constants/GAMES";
 import OTPInput from "../components/OTPInput";
 import { Button } from "native-base";
+import { useCart } from "../providers/CartContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Game">;
 
 export const Game = ({ navigation, route }: Props) => {
   const { type } = route.params;
 
+  const { currentGame, setCurrentGame } = useCart();
+
   const TYPE_GAME = GAMES[type];
 
   const [number, setNumber] = useState<string>("");
-  const [numbers, setNumbers] = useState<string[]>([]);
+
+  useEffect(() => {
+    setCurrentGame((prev) => ({ ...prev, name: TYPE_GAME.label }));
+  }, [TYPE_GAME]);
 
   const addNumber = (num: string) => {
-    setNumbers([...numbers, num]);
+    setCurrentGame((prev) => ({ ...prev, numbers: [...prev.numbers, num] }));
+
     setNumber("");
   };
 
   const deleteNumber = (index: number) => {
-    setNumbers(numbers.filter((_, i) => i !== index));
+    setCurrentGame((prev) => ({
+      ...prev,
+      numbers: prev.numbers.filter((_, i) => i !== index),
+    }));
   };
 
   const handleNext = () => {
-    if (numbers.length === 0) {
+    if (currentGame.numbers.length === 0) {
       Alert.alert(
         "Erro",
         "Adicione pelo menos um número no formato " + TYPE_GAME.format
       );
     } else {
-      navigation.navigate("Prizes", { numbers, type });
+      navigation.navigate("Prizes");
     }
   };
 
@@ -65,7 +74,7 @@ export const Game = ({ navigation, route }: Props) => {
       />
       <FlatList
         style={{ flex: 1, marginVertical: 30 }}
-        data={numbers}
+        data={currentGame.numbers}
         renderItem={({ item, index }) => (
           <View style={localStyles.numberItem}>
             <Text style={localStyles.numberText}>{item}</Text>

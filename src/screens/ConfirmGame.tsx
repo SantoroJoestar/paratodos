@@ -20,6 +20,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useCart } from "../providers/CartContext";
 
+import { calculateAmount } from "../utils/calculateAmount";
+
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
 const HourTimesInitial = {
@@ -27,11 +29,8 @@ const HourTimesInitial = {
   "19h": false,
 };
 
-export const ConfirmGame = ({ route, navigation }: Props) => {
-  console.log("route.params: ", route.params);
-  const { numbers, betValues } = route.params;
-
-  const { setItems } = useCart();
+export const ConfirmGame = ({ navigation }: Props) => {
+  const { setItems, currentGame } = useCart();
 
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -52,7 +51,7 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
 
   const confirmBets = () => {
     // Verificar se há pelo menos uma aposta selecionada
-    if (betValues.length === 0) {
+    if (currentGame.bets.length === 0) {
       Alert.alert(
         "Erro",
         "Você deve fazer pelo menos uma aposta para prosseguir."
@@ -60,19 +59,10 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
       return;
     }
 
-    setItems((prev) => [...prev, ...betValues]);
+    setItems((prev) => [...prev, currentGame]);
 
     navigation.navigate("Cart");
     // Navegar para a próxima tela ou realizar outras ações necessárias
-  };
-
-  // Função para calcular o valor total das apostas
-  const calculateTotalBetAmount = () => {
-    let total = 0;
-    betValues.forEach((item) => {
-      total += parseFloat(item.betAmount);
-    });
-    return total.toFixed(2);
   };
 
   return (
@@ -115,11 +105,11 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
 
           <FlatList
             style={{ flex: 1 }}
-            data={betValues}
+            data={currentGame.bets}
             renderItem={({ item }) => (
               <View style={localStyles.betSummary}>
                 <Text style={localStyles.summaryText}>
-                  Números: {numbers.join(", ")}
+                  Números: {currentGame.numbers.join(", ")}
                 </Text>
                 <Text style={localStyles.summaryText}>
                   Prêmios: {numbersSelectedFormated(item.prizes)}
@@ -136,7 +126,7 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
                       precision: 2,
                     }}
                   >
-                    {item.betAmount}
+                    {item.valueBet}
                   </MaskedText>
                 </Text>
               </View>
@@ -146,7 +136,7 @@ export const ConfirmGame = ({ route, navigation }: Props) => {
 
           {/* Campo para mostrar o valor total das apostas */}
           <Text style={localStyles.totalText}>
-            Valor Total das Apostas: R$ {calculateTotalBetAmount()}
+            Valor Total das Apostas: R$ {calculateAmount(currentGame.bets)}
           </Text>
         </View>
         <Button onPress={confirmBets}>
@@ -210,13 +200,13 @@ const localStyles = StyleSheet.create({
     width: "100%",
   },
   summaryText: {
-    fontSize: 20,
+    fontSize: 16,
     margin: 2,
   },
   totalText: {
-    marginTop: 10,
-    fontSize: 18,
-    fontWeight: "bold",
+    marginTop: 5,
+    fontSize: 16,
+    fontWeight: "500",
     textAlign: "center",
   },
 });

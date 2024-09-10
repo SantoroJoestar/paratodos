@@ -1,44 +1,21 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 
 import { styles } from "../styles"; // Importe os estilos comuns
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
 import { MaskedText } from "react-native-mask-text";
-import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
+
 import { Button } from "native-base";
 
 import { useCart } from "../providers/CartContext";
+import { calculateAmount } from "../utils/calculateAmount";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
-const HourTimesInitial = {
-  "14h": false,
-  "19h": false,
-};
-
 export const Cart = ({ route, navigation }: Props) => {
-  console.log("route.params: ", route.params);
-
-  const { items } = useCart();
-
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedTimes, setSelectedTimes] = useState(HourTimesInitial);
-
-  const onChange = (event: any, selectedDate: any) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(false);
-    setDate(currentDate);
-  };
-
-  const toggleTime = (time: keyof typeof HourTimesInitial) => {
-    setSelectedTimes({
-      ...selectedTimes,
-      [time]: !selectedTimes[time],
-    });
-  };
+  const { items, removeFromCart } = useCart();
 
   const confirmBets = () => {
     // Verificar se há pelo menos uma aposta selecionada
@@ -59,16 +36,15 @@ export const Cart = ({ route, navigation }: Props) => {
   return (
     <View style={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={styles.title}>Carrinho</Text>
-
         <FlatList
           style={{ flex: 1 }}
           data={items}
           renderItem={({ item, index }) => (
             <View style={localStyles.betSummary}>
-              <Text style={localStyles.summaryText}>Números: {index}</Text>
+              <Text style={localStyles.summaryText}>Jogo: {item.name}</Text>
+
               <Text style={localStyles.summaryText}>
-                Prêmios: {numbersSelectedFormated(item.prizes)}
+                Números: {item.numbers.join(", ")}
               </Text>
 
               <Text style={localStyles.summaryText}>
@@ -82,43 +58,22 @@ export const Cart = ({ route, navigation }: Props) => {
                     precision: 2,
                   }}
                 >
-                  {item.betAmount}
+                  {calculateAmount(item.bets)}
                 </MaskedText>
               </Text>
+
+              <Button
+                variant="outline"
+                mt={2}
+                onPress={() => removeFromCart(index)}
+              >
+                Remover
+              </Button>
             </View>
           )}
           keyExtractor={(item, index) => index.toString()}
         />
 
-        {/* Campo para mostrar o valor total das apostas */}
-        <Text style={localStyles.totalText}>
-          Subtotal das Apostas:{" "}
-          <MaskedText
-            type="currency"
-            options={{
-              prefix: "R$ ",
-              decimalSeparator: ",",
-              groupSeparator: ".",
-              precision: 2,
-            }}
-          >
-            20000
-          </MaskedText>
-        </Text>
-        <Text style={localStyles.totalText}>
-          Valor Total das Apostas:{" "}
-          <MaskedText
-            type="currency"
-            options={{
-              prefix: "R$ ",
-              decimalSeparator: ",",
-              groupSeparator: ".",
-              precision: 2,
-            }}
-          >
-            20000
-          </MaskedText>
-        </Text>
         <Text style={localStyles.totalText}>
           Valor Total das Apostas:{" "}
           <MaskedText
@@ -134,7 +89,10 @@ export const Cart = ({ route, navigation }: Props) => {
           </MaskedText>
         </Text>
       </View>
-      <Button onPress={confirmBets}>
+      <Button onPress={() => navigation.navigate("MenuGames")}>
+        <Text style={styles.actionButtonText}>Fazer mais Apostas</Text>
+      </Button>
+      <Button mt={2} onPress={confirmBets}>
         <Text style={styles.actionButtonText}>Confirmar</Text>
       </Button>
     </View>
@@ -194,13 +152,13 @@ const localStyles = StyleSheet.create({
     width: "100%",
   },
   summaryText: {
-    fontSize: 20,
-    margin: 5,
+    fontSize: 17,
+    margin: 1,
   },
   totalText: {
-    marginTop: 10,
-    fontSize: 18,
-    fontWeight: "bold",
+    marginTop: 7,
+    fontSize: 16,
+    fontWeight: "500",
     textAlign: "center",
   },
 });

@@ -11,11 +11,16 @@ import { styles } from "../styles"; // Importe os estilos comuns
 import { RootStackParamList } from "../types/routes.type";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { GAMES } from "../constants/GAMES";
+import { GameModel } from "../models/GameModel";
+import { useCart } from "../providers/CartContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MenuGames">;
 
 export const MenuGames = ({ navigation }: Props) => {
+  const { setCurrentGame } = useCart();
+
   const navigateToGame = (screen: keyof typeof GAMES) => {
+    setCurrentGame(GameModel());
     navigation.navigate("Game", {
       type: screen,
     });

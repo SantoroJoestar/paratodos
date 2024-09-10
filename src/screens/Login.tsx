@@ -55,9 +55,6 @@ export const Login = ({ navigation }: Props) => {
           >
             <Text style={styles.actionButtonText}>Entrar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={print}>
-            <Text style={styles.actionButtonText}>Imprimir</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </>

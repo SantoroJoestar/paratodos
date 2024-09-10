@@ -25,19 +25,17 @@ import {
 
 import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
 import { border } from "native-base/lib/typescript/theme/styled-system";
+import { BetType } from "../types/bet.type";
+import { useCart } from "../providers/CartContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Prizes">;
 
-export type BetType = {
-  prizes: string[];
-  betAmount: string;
-};
-
-export const Prizes = ({ navigation, route }: Props) => {
+export const Prizes = ({ navigation }: Props) => {
   const [selectedPrizes, setSelectedPrizes] = useState<string[]>([]);
+
   const [betAmount, setBetAmount] = useState("");
 
-  const [betValues, setBetValues] = useState<BetType[]>([]);
+  const { currentGame, setCurrentGame } = useCart();
 
   const { isOpen, onOpen, onClose } = useDisclose();
 
@@ -49,6 +47,14 @@ export const Prizes = ({ navigation, route }: Props) => {
     }
   };
 
+  const remove = (index: number) => {
+    setSelectedPrizes((prev) => prev.filter((_, i) => i !== index));
+    setCurrentGame((prev) => ({
+      ...prev,
+      bets: prev.bets.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleConfirm = () => {
     if (selectedPrizes.length === 0) {
       Alert.alert("Erro", "Selecione pelo menos um prêmio.");
@@ -56,10 +62,10 @@ export const Prizes = ({ navigation, route }: Props) => {
       Alert.alert("Erro", "Informe o valor da aposta.");
     } else {
       const newBet: BetType = {
+        valueBet: betAmount,
         prizes: selectedPrizes,
-        betAmount: betAmount,
       };
-      setBetValues([...betValues, newBet]);
+      setCurrentGame((prev) => ({ ...prev, bets: [...prev.bets, newBet] }));
       setSelectedPrizes([]);
       setBetAmount("");
       onClose();
@@ -67,25 +73,17 @@ export const Prizes = ({ navigation, route }: Props) => {
   };
 
   const handleProceed = () => {
-    if (betValues.length === 0) {
+    if (currentGame.bets.length === 0) {
       Alert.alert("Erro", "Faça pelo menos uma aposta antes de prosseguir.");
     } else {
-      navigation.navigate("ConfirmGame", {
-        numbers: route.params.numbers,
-        betValues,
-      });
+      navigation.navigate("ConfirmGame");
     }
   };
-
-  console.log("betAmount: ", betAmount);
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      h={{
-        base: "400px",
-      }}
       keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
     >
       <Actionsheet isOpen={isOpen} onClose={onClose}>
@@ -161,27 +159,40 @@ export const Prizes = ({ navigation, route }: Props) => {
         </Text>
 
         <FlatList
-          data={betValues}
+          data={currentGame.bets}
           style={{ flex: 1 }}
-          renderItem={({ item }) => (
-            <View style={localStyles.betItem}>
-              <Text style={localStyles.betItemText}>
-                Prêmios: {numbersSelectedFormated(item.prizes)}
-              </Text>
-              <Text style={localStyles.betItemText}>
-                Valor:{" "}
-                <MaskedText
-                  type="currency"
-                  options={{
-                    prefix: "R$ ",
-                    decimalSeparator: ",",
-                    groupSeparator: ".",
-                    precision: 2,
-                  }}
-                >
-                  {item.betAmount}
-                </MaskedText>
-              </Text>
+          renderItem={({ item, index }) => (
+            <View
+              style={{
+                flexDirection: "row",
+                ...localStyles.betItem,
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={localStyles.betItemText}>
+                  Prêmios: {numbersSelectedFormated(item.prizes)}
+                </Text>
+                <Text style={localStyles.betItemText}>
+                  Valor:{" "}
+                  <MaskedText
+                    type="currency"
+                    options={{
+                      prefix: "R$ ",
+                      decimalSeparator: ",",
+                      groupSeparator: ".",
+                      precision: 2,
+                    }}
+                  >
+                    {item.valueBet}
+                  </MaskedText>
+                </Text>
+              </View>
+              <Button
+                onPress={() => remove(index)}
+                style={{ flexShrink: 1, backgroundColor: "red" }}
+              >
+                Remover
+              </Button>
             </View>
           )}
           keyExtractor={(item, index) => index.toString()}
@@ -282,17 +293,15 @@ const localStyles = StyleSheet.create({
     alignItems: "center",
   },
   betItem: {
-    width: "100%",
     borderWidth: 1,
     backgroundColor: "#fff",
     borderColor: "#ccc",
     borderRadius: 8,
-    padding: 15,
+    padding: 10,
     marginBottom: 10,
   },
   betItemText: {
-    fontSize: 20,
-    marginBottom: 5,
+    fontSize: 16,
   },
   scrollContainer: {
     flexGrow: 1,
