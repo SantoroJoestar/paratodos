@@ -17,37 +17,39 @@ export const BottomCart = ({ children, navigation }: Props) => {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1, paddingBottom: 60 }}>{children}</View>
-      <View
-        position="absolute"
-        bottom={0}
-        w="100%"
-        bgColor="gray.200"
-        style={{ flexDirection: "row", padding: 10 }}
-      >
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontWeight: 700, fontSize: 18 }}>
-            Total:{" "}
-            <MaskedText
-              type="currency"
-              options={{
-                prefix: "R$ ",
-                decimalSeparator: ",",
-                groupSeparator: ".",
-                precision: 2,
-              }}
-            >
-              {calculateAmountGame(items)}
-            </MaskedText>
-          </Text>
-          <Text style={{ fontWeight: 500, fontSize: 15 }}>
-            {items.length} itens no carrinho
-          </Text>
+      {items.length > 0 && (
+        <View
+          position="absolute"
+          bottom={0}
+          w="100%"
+          bgColor="gray.200"
+          style={{ flexDirection: "row", padding: 10 }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontWeight: 700, fontSize: 18 }}>
+              Total:{" "}
+              <MaskedText
+                type="currency"
+                options={{
+                  prefix: "R$ ",
+                  decimalSeparator: ",",
+                  groupSeparator: ".",
+                  precision: 2,
+                }}
+              >
+                {calculateAmountGame(items)}
+              </MaskedText>
+            </Text>
+            <Text style={{ fontWeight: 500, fontSize: 15 }}>
+              {items.length} itens no carrinho
+            </Text>
+          </View>
+          {/* @ts-ignore */}
+          <Button onPress={() => navigation.navigate("Cart")}>
+            Ver carrinho
+          </Button>
         </View>
-        {/* @ts-ignore */}
-        <Button onPress={() => navigation.navigate("Cart")}>
-          Ver carrinho
-        </Button>
-      </View>
+      )}
     </View>
   );
 };

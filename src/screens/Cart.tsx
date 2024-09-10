@@ -49,10 +49,12 @@ export const Cart = ({ route, navigation }: Props) => {
           data={items}
           renderItem={({ item, index }) => (
             <View style={localStyles.betSummary}>
+              <Text style={localStyles.summaryText}>Pule: {item.pule}</Text>
+
               <Text style={localStyles.summaryText}>Jogo: {item.name}</Text>
 
               <Text style={localStyles.summaryText}>
-                Data e Horário: {format(item.time, "dd/MM/yyyy HH:mm")}
+                Data e Horário: {format(item.date, "dd/MM/yyyy HH:mm")}
               </Text>
 
               <Text style={localStyles.summaryText}>
