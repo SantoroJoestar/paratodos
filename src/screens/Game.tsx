@@ -15,6 +15,7 @@ import { GAMES } from "../constants/GAMES";
 import OTPInput from "../components/OTPInput";
 import { Button } from "native-base";
 import { useCart } from "../providers/CartContext";
+import { generatePule } from "../utils/generatePule";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Game">;
 
@@ -28,7 +29,11 @@ export const Game = ({ navigation, route }: Props) => {
   const [number, setNumber] = useState<string>("");
 
   useEffect(() => {
-    setCurrentGame((prev) => ({ ...prev, name: TYPE_GAME.label }));
+    setCurrentGame((prev) => ({
+      ...prev,
+      name: TYPE_GAME.label,
+      pule: generatePule(),
+    }));
   }, [TYPE_GAME]);
 
   const addNumber = (num: string) => {

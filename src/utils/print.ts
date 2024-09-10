@@ -3,27 +3,27 @@ import { Alert } from "react-native";
 import * as SunmiPrinterLibrary from "@mitsuharu/react-native-sunmi-printer-library";
 import { GameType } from "../types/game.type";
 
+import { calculateAmount } from "./calculateAmount";
+import { formatCurrency } from "./formatCurrency";
+import { format } from "date-fns";
+
 export const print = async (games: GameType[]) => {
   try {
     await SunmiPrinterLibrary.prepare();
 
-    const content = `
-    PULE: id
-    Nome do Jogo: Milhar
-    Data da Aposta: ${new Date().toLocaleDateString()}
-    Horário da Aposta: 14h
-    Números apostados: 1234, 5678
-    Valores apostados: R$ 10, R$ 20
-    Total da aposta: R$ 30
-
-    PULE: id
-    Nome do Jogo: Milhar
-    Data da Aposta: ${new Date().toLocaleDateString()}
-    Horário da Aposta: 14h
-    Números apostados: 1234, 5678
-    Valores apostados: R$ 10, R$ 20
-    Total da aposta: R$ 30
-  `;
+    const content = games
+      .map(
+        (game) => `
+  Pule: ${game.pule}
+  Jogo: ${game.name}
+  Data: ${format(game.date, "dd/MM/yyyy")}
+  Horário: ${game.time}
+  Números apostados: ${game.numbers.join(", ")}
+  Valores apostados: ${game.bets.map((bet) => bet.valueBet).join(", ")}
+  Total da aposta: ${formatCurrency(Number(calculateAmount(game.bets)))}
+`
+      )
+      .join("\n\n");
 
     await SunmiPrinterLibrary.printText(content)
       .then(() => {

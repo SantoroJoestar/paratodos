@@ -11,13 +11,17 @@ import { Button } from "native-base";
 
 import { useCart } from "../providers/CartContext";
 import { calculateAmount } from "../utils/calculateAmount";
+import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
+import { format } from "date-fns";
+import { calculateAmountGame } from "../utils/calculateAmountGame";
+import { print } from "../utils/print";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
 export const Cart = ({ route, navigation }: Props) => {
   const { items, removeFromCart } = useCart();
 
-  const confirmBets = () => {
+  const confirmBets = async () => {
     // Verificar se há pelo menos uma aposta selecionada
     if (items.length === 0) {
       Alert.alert(
@@ -27,8 +31,12 @@ export const Cart = ({ route, navigation }: Props) => {
       return;
     }
 
+    Alert.alert("Imprimindo nota...");
+
+    await print(items);
+
     // Aqui você pode adicionar a lógica para confirmar as apostas
-    Alert.alert("Apostas confirmadas");
+    Alert.alert("Apostas confirmadas!");
     navigation.navigate("MainMenu");
     // Navegar para a próxima tela ou realizar outras ações necessárias
   };
@@ -44,7 +52,24 @@ export const Cart = ({ route, navigation }: Props) => {
               <Text style={localStyles.summaryText}>Jogo: {item.name}</Text>
 
               <Text style={localStyles.summaryText}>
+                Data e Horário: {format(item.time, "dd/MM/yyyy HH:mm")}
+              </Text>
+
+              <Text style={localStyles.summaryText}>
                 Números: {item.numbers.join(", ")}
+              </Text>
+
+              <Text style={localStyles.summaryText}>
+                Apostas:{" "}
+                {item.bets.map(
+                  (bet) =>
+                    "R$ " +
+                    bet.valueBet +
+                    " (Premios: " +
+                    numbersSelectedFormated(bet.prizes) +
+                    "), " +
+                    "\n"
+                )}
               </Text>
 
               <Text style={localStyles.summaryText}>
@@ -85,15 +110,18 @@ export const Cart = ({ route, navigation }: Props) => {
               precision: 2,
             }}
           >
-            20000
+            {calculateAmountGame(items)}
           </MaskedText>
         </Text>
       </View>
-      <Button onPress={() => navigation.navigate("MenuGames")}>
-        <Text style={styles.actionButtonText}>Fazer mais Apostas</Text>
+      <Button
+        variant={"outline"}
+        onPress={() => navigation.navigate("MenuGames")}
+      >
+        Fazer mais Apostas
       </Button>
       <Button mt={2} onPress={confirmBets}>
-        <Text style={styles.actionButtonText}>Confirmar</Text>
+        Confirmar
       </Button>
     </View>
   );
