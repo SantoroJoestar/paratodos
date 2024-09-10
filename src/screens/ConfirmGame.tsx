@@ -30,7 +30,7 @@ const HourTimesInitial = {
 };
 
 export const ConfirmGame = ({ navigation }: Props) => {
-  const { setItems, currentGame } = useCart();
+  const { setItems, currentGame, setCurrentGame } = useCart();
 
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -58,6 +58,8 @@ export const ConfirmGame = ({ navigation }: Props) => {
       );
       return;
     }
+
+    setCurrentGame((prev) => ({ ...prev, date: date, time: "14h" }));
 
     setItems((prev) => [...prev, currentGame]);
 
@@ -136,7 +138,18 @@ export const ConfirmGame = ({ navigation }: Props) => {
 
           {/* Campo para mostrar o valor total das apostas */}
           <Text style={localStyles.totalText}>
-            Valor Total das Apostas: R$ {calculateAmount(currentGame.bets)}
+            Valor Total das Apostas:{" "}
+            <MaskedText
+              type="currency"
+              options={{
+                prefix: "R$ ",
+                decimalSeparator: ",",
+                groupSeparator: ".",
+                precision: 2,
+              }}
+            >
+              {calculateAmount(currentGame.bets)}
+            </MaskedText>
           </Text>
         </View>
         <Button onPress={confirmBets}>
