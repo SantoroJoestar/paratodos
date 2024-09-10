@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Alert,
   FlatList,
@@ -15,13 +14,7 @@ import { styles } from "../styles"; // Import common styles
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
 import { MaskedText, MaskedTextInput } from "react-native-mask-text";
-import {
-  Actionsheet,
-  Button,
-  Input,
-  KeyboardAvoidingView,
-  useDisclose,
-} from "native-base";
+import { Actionsheet, Button, useDisclose } from "native-base";
 
 import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
 import { border } from "native-base/lib/typescript/theme/styled-system";
@@ -81,11 +74,7 @@ export const Prizes = ({ navigation }: Props) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
-    >
+    <View style={styles.container}>
       <Actionsheet isOpen={isOpen} onClose={onClose}>
         <Actionsheet.Content>
           <View
@@ -189,21 +178,15 @@ export const Prizes = ({ navigation }: Props) => {
           keyExtractor={(item, index) => index.toString()}
         />
         <View style={{ flexDirection: "row" }}>
-          <Button
-            style={[styles.actionButton, localStyles.prizesButton]}
-            onPress={onOpen}
-          >
-            <Text style={styles.actionButtonText}>Prêmios</Text>
+          <Button flex={1} mr={5} onPress={onOpen} variant={"subtle"}>
+            Prêmios
           </Button>
-          <Button
-            style={[styles.actionButton, localStyles.proceedButton]}
-            onPress={handleProceed}
-          >
-            <Text style={styles.actionButtonText}>Prosseguir</Text>
+          <Button flex={1} onPress={handleProceed}>
+            Prosseguir
           </Button>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
