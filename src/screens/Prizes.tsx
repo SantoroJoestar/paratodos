@@ -109,7 +109,7 @@ export const Prizes = ({ navigation }: Props) => {
                 }}
                 style={
                   {
-                    fontSize: 30,
+                    fontSize: 20,
                     fontWeight: "600",
                     borderWidth: 1,
                     borderColor: "blue",
@@ -124,31 +124,22 @@ export const Prizes = ({ navigation }: Props) => {
             {["1", "2", "3", "4", "5"].map((prizeNumber) => (
               <Button
                 key={prizeNumber}
-                style={[
-                  localStyles.prizeButton,
-                  selectedPrizes.includes(prizeNumber) &&
-                    localStyles.selectedPrize,
-                ]}
+                variant={
+                  selectedPrizes.includes(prizeNumber) ? "solid" : "outline"
+                }
+                style={[{ marginBottom: 10 }]}
                 onPress={() => handlePrizeSelection(prizeNumber)}
               >
-                <Text
-                  style={localStyles.prizeButtonText}
-                >{`${prizeNumber}º Prêmio`}</Text>
+                {`${prizeNumber}º Prêmio`}
               </Button>
             ))}
           </View>
           <View style={{ flexDirection: "row" }}>
-            <Button
-              style={[styles.actionButton, localStyles.closeButton]}
-              onPress={onClose}
-            >
-              <Text style={styles.actionButtonText}>Fechar</Text>
+            <Button flex={1} mr={4} onPress={onClose}>
+              Fechar
             </Button>
-            <Button
-              style={[styles.actionButton, localStyles.confirmButton]}
-              onPress={handleConfirm}
-            >
-              <Text style={styles.actionButtonText}>Confirmar</Text>
+            <Button flex={1} onPress={handleConfirm}>
+              Confirmar
             </Button>
           </View>
         </Actionsheet.Content>
