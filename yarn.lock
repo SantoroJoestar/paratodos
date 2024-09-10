@@ -2199,13 +2199,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@makgabri/react-native-sunmi-printer@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@makgabri/react-native-sunmi-printer@npm:0.1.1"
+"@mitsuharu/react-native-sunmi-printer-library@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@mitsuharu/react-native-sunmi-printer-library@npm:2.2.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 2d457313d789a7d019197b46687df42e7810b29fed4a5e948f3e787ce25de9b4b0fbb33e65ebe92b5cdc9e958600093d5f6e76edf62f4fa3b58bf6c7dee0abfa
+  checksum: 777e7a526edde0b5eddb1e11274c8e685be63bc425cf2bf7508a7d490e72c7dae41f148ef9f32265b0f906e913b94deb51150f0d764f48bae6adede17160bd5e
   languageName: node
   linkType: hard
 
@@ -9274,7 +9274,7 @@ __metadata:
     "@babel/core": ^7.20.0
     "@babel/preset-env": ^7.20.0
     "@babel/runtime": ^7.20.0
-    "@makgabri/react-native-sunmi-printer": ^0.1.1
+    "@mitsuharu/react-native-sunmi-printer-library": ^2.2.0
     "@react-native-community/datetimepicker": ^8.1.1
     "@react-native/babel-preset": 0.74.84
     "@react-native/eslint-config": 0.74.84
