@@ -7,7 +7,6 @@ import {
   StyleSheet,
   FlatList,
   Alert,
-  ScrollView,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { styles } from "../styles"; // Importe os estilos comuns
@@ -42,11 +41,15 @@ export const ConfirmGame = ({ navigation }: Props) => {
     setDate(currentDate);
   };
 
+  // Lógica para permitir selecionar apenas um horário
   const toggleTime = (time: keyof typeof HourTimesInitial) => {
-    setSelectedTimes({
-      ...selectedTimes,
-      [time]: !selectedTimes[time],
-    });
+    // Atualizar o estado, desmarcando todos os outros tempos e marcando apenas o selecionado
+    const updatedTimes = Object.keys(HourTimesInitial).reduce((acc, cur) => {
+      acc[cur as keyof typeof HourTimesInitial] = cur === time;
+      return acc;
+    }, {} as typeof HourTimesInitial);
+
+    setSelectedTimes(updatedTimes);
   };
 
   const confirmBets = () => {
