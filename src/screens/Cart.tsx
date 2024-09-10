@@ -54,8 +54,10 @@ export const Cart = ({ route, navigation }: Props) => {
               <Text style={localStyles.summaryText}>Jogo: {item.name}</Text>
 
               <Text style={localStyles.summaryText}>
-                Data e Horário: {format(item.date, "dd/MM/yyyy HH:mm")}
+                Data: {format(item.date, "dd/MM/yyyy")}
               </Text>
+
+              <Text style={localStyles.summaryText}>Horário: {item.time}</Text>
 
               <Text style={localStyles.summaryText}>
                 Números: {item.numbers.join(", ")}

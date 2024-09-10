@@ -39,6 +39,7 @@ export const ConfirmGame = ({ navigation }: Props) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
     setDate(currentDate);
+    setCurrentGame((prev) => ({ ...prev, date: date }));
   };
 
   // Lógica para permitir selecionar apenas um horário
@@ -50,6 +51,7 @@ export const ConfirmGame = ({ navigation }: Props) => {
     }, {} as typeof HourTimesInitial);
 
     setSelectedTimes(updatedTimes);
+    setCurrentGame((prev) => ({ ...prev, date: date }));
   };
 
   const confirmBets = () => {
@@ -61,8 +63,6 @@ export const ConfirmGame = ({ navigation }: Props) => {
       );
       return;
     }
-
-    setCurrentGame((prev) => ({ ...prev, date: date, time: "14h" }));
 
     setItems((prev) => [...prev, currentGame]);
 
