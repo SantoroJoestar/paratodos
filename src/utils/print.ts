@@ -6,15 +6,16 @@ import { GameType } from "../types/game.type";
 import { calculateAmount } from "./calculateAmount";
 import { formatCurrency } from "./formatCurrency";
 import { format } from "date-fns";
+import { CartType } from "../providers/CartContext";
 
-export const print = async (games: GameType[]) => {
+export const print = async (cart: CartType) => {
   try {
     await SunmiPrinterLibrary.prepare();
 
-    const content = games
+    const content = cart.games
       .map(
         (game) => `
-  Pule: ${game.pule}
+  Pule: ${cart.pule}
   Jogo: ${game.name}
   Data: ${format(game.date, "dd/MM/yyyy")}
   Horário: ${game.time}

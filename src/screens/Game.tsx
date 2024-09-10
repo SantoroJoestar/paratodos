@@ -26,6 +26,8 @@ export const Game = ({ navigation, route }: Props) => {
 
   const TYPE_GAME = GAMES[type];
 
+  const limit = TYPE_GAME.max;
+
   const [number, setNumber] = useState<string>("");
 
   useEffect(() => {
@@ -60,9 +62,25 @@ export const Game = ({ navigation, route }: Props) => {
     }
   };
 
+  const validateCode = (inputCode: string) => {
+    let bool = true;
+    if (!limit) return true;
+
+    const parts = inputCode.split("-");
+    for (const part of parts) {
+      const numericValue = parseInt(part);
+      if (numericValue > limit) {
+        bool = false; // Limite de 25
+        Alert.alert("Erro", "Dezena nao pode ser maior que " + limit + "!");
+        break;
+      }
+    }
+    return bool;
+  };
+
   const handleInputChange = (text: string) => {
     setNumber(text);
-    if (text.length === TYPE_GAME.format.length) {
+    if (text.length === TYPE_GAME.format.length && validateCode(text)) {
       addNumber(text);
     }
   };
@@ -76,6 +94,7 @@ export const Game = ({ navigation, route }: Props) => {
         code={number}
         format={TYPE_GAME.format}
         setCode={handleInputChange}
+        limit={TYPE_GAME.max}
       />
       <FlatList
         style={{ flex: 1, marginVertical: 30 }}

@@ -19,7 +19,7 @@ export const TextInputHidden = styled(TextInput)`
   width: 100%;
 `;
 
-export const gap = 10;
+export const gap = 5;
 
 export const SplitOTPBoxesContainer = styled.Pressable`
   width: 100%;
@@ -35,9 +35,8 @@ export const SplitBoxes = styled.View`
   background-color: #ffffff89;
   border-width: 2px;
   border-radius: 5px;
-  padding: 12px;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
 `;
 
 export const SplitBoxesGap = styled.View`
@@ -45,7 +44,7 @@ export const SplitBoxesGap = styled.View`
   border-width: 2px;
   border-radius: 5px;
   width: 20px;
-  height: 50px;
+  height: 40px;
 `;
 
 export const SplitBoxText = styled.Text`

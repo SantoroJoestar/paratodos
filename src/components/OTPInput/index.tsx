@@ -14,11 +14,18 @@ import { TextInput } from "react-native";
 type OTPInputProps = {
   code: string;
   format: string;
+  limit?: number;
   setCode: (code: OTPInputProps["code"]) => void;
   setIsPinReady?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const OTPInput = ({ code, format, setCode, setIsPinReady }: OTPInputProps) => {
+const OTPInput = ({
+  limit,
+  code,
+  format,
+  setCode,
+  setIsPinReady,
+}: OTPInputProps) => {
   const boxArray = new Array(format.length).fill(0);
   const inputRef = useRef<TextInput>(null);
 
@@ -99,7 +106,7 @@ const OTPInput = ({ code, format, setCode, setIsPinReady }: OTPInputProps) => {
 
     return (
       <StyledSplitBoxes style={{ marginHorizontal: gap / 2 }} key={index}>
-        <SplitBoxText style={{ fontSize: isGap ? 35 : 20 }}>
+        <SplitBoxText style={{ fontSize: isGap ? 23 : 25 }}>
           {digit}
         </SplitBoxText>
       </StyledSplitBoxes>
