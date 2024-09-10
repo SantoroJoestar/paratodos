@@ -1,21 +1,40 @@
 import React, { createContext, useContext, useState } from "react";
 import { GameModel } from "../models/GameModel";
 import { GameType } from "../types/game.type";
+import { generatePule } from "../utils/generatePule";
+
+export type CartType = {
+  pule: string;
+  games: GameType[];
+};
 
 const _controllerCart = () => {
   const [currentGame, setCurrentGame] = useState<GameType>(GameModel());
 
-  const [items, setItems] = useState<GameType[]>([]);
+  const [cart, setCart] = useState<CartType>({
+    pule: generatePule(),
+    games: [],
+  });
+
+  const newCart = () =>
+    setCart({
+      pule: generatePule(),
+      games: [],
+    });
 
   const removeFromCart = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
+    setCart((prev) => ({
+      ...prev,
+      games: prev.games.filter((_, i) => i !== index),
+    }));
   };
 
   return {
+    newCart,
+    cart,
+    setCart,
     currentGame,
     setCurrentGame,
-    items,
-    setItems,
     removeFromCart,
   };
 };

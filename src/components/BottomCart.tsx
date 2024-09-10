@@ -12,12 +12,12 @@ type Props = {
 };
 
 export const BottomCart = ({ children, navigation }: Props) => {
-  const { items } = useCart();
+  const { cart } = useCart();
 
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1, paddingBottom: 60 }}>{children}</View>
-      {items.length > 0 && (
+      {cart.games.length > 0 && (
         <View
           position="absolute"
           bottom={0}
@@ -37,11 +37,11 @@ export const BottomCart = ({ children, navigation }: Props) => {
                   precision: 2,
                 }}
               >
-                {calculateAmountGame(items)}
+                {calculateAmountGame(cart.games)}
               </MaskedText>
             </Text>
             <Text style={{ fontWeight: 500, fontSize: 15 }}>
-              {items.length} itens no carrinho
+              {cart.games.length} itens no carrinho
             </Text>
           </View>
           {/* @ts-ignore */}

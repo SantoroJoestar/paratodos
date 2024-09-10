@@ -1,4 +1,13 @@
-export const GAMES = {
+export type TypeGames = {
+  [id: string]: {
+    id: string;
+    label: string;
+    format: string;
+    max?: number;
+  };
+};
+
+export const GAMES: TypeGames = {
   /**
    * @description máximo de 4
    *
@@ -66,8 +75,6 @@ export const GAMES = {
   Grupo: {
     id: "Grupo",
     label: "Grupo",
-    digit: 2,
-    min: 0,
     max: 25, // 0 a 25
     format: "00",
   },
@@ -83,4 +90,4 @@ export const GAMES = {
     max: 25, // (0-25)-(0-25)-(0-25)
     format: "00-00-00",
   },
-} as const;
+};

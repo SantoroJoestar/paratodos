@@ -29,7 +29,7 @@ const HourTimesInitial = {
 };
 
 export const ConfirmGame = ({ navigation }: Props) => {
-  const { setItems, currentGame, setCurrentGame } = useCart();
+  const { setCart, currentGame, setCurrentGame } = useCart();
 
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -39,7 +39,7 @@ export const ConfirmGame = ({ navigation }: Props) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
     setDate(currentDate);
-    setCurrentGame((prev) => ({ ...prev, date: date }));
+    setCurrentGame((prev) => ({ ...prev, date: currentDate }));
   };
 
   // Lógica para permitir selecionar apenas um horário
@@ -51,7 +51,10 @@ export const ConfirmGame = ({ navigation }: Props) => {
     }, {} as typeof HourTimesInitial);
 
     setSelectedTimes(updatedTimes);
-    setCurrentGame((prev) => ({ ...prev, date: date }));
+    setCurrentGame((prev) => ({
+      ...prev,
+      time: Object.entries(updatedTimes)?.find((time) => time[1])?.[0] || "",
+    }));
   };
 
   const confirmBets = () => {
@@ -64,7 +67,15 @@ export const ConfirmGame = ({ navigation }: Props) => {
       return;
     }
 
-    setItems((prev) => [...prev, currentGame]);
+    if (currentGame.time === "") {
+      Alert.alert("Erro", "Você deve fazer escolher um horário.");
+      return;
+    }
+
+    setCart((prev) => ({
+      ...prev,
+      games: [...prev.games, currentGame],
+    }));
 
     navigation.navigate("Cart");
     // Navegar para a próxima tela ou realizar outras ações necessárias

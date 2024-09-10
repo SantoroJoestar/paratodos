@@ -1,7 +1,6 @@
 import { BetType } from "./bet.type";
 
 export type GameType = {
-  pule: string;
   name: string;
   bets: BetType[];
   numbers: string[];

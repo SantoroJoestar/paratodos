@@ -15,15 +15,16 @@ import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
 import { format } from "date-fns";
 import { calculateAmountGame } from "../utils/calculateAmountGame";
 import { print } from "../utils/print";
+import { generatePule } from "../utils/generatePule";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
 export const Cart = ({ route, navigation }: Props) => {
-  const { items, removeFromCart } = useCart();
+  const { cart, newCart, removeFromCart } = useCart();
 
   const confirmBets = async () => {
     // Verificar se há pelo menos uma aposta selecionada
-    if (items.length === 0) {
+    if (cart.games.length === 0) {
       Alert.alert(
         "Erro",
         "Você deve fazer pelo menos uma aposta para prosseguir."
@@ -33,8 +34,9 @@ export const Cart = ({ route, navigation }: Props) => {
 
     Alert.alert("Imprimindo nota...");
 
-    await print(items);
+    await print(cart);
 
+    newCart();
     // Aqui você pode adicionar a lógica para confirmar as apostas
     Alert.alert("Apostas confirmadas!");
     navigation.navigate("MainMenu");
@@ -44,13 +46,14 @@ export const Cart = ({ route, navigation }: Props) => {
   return (
     <View style={styles.scrollContainer}>
       <View style={styles.container}>
+        <Text style={{ fontSize: 20, fontWeight: "600", marginBottom: 20 }}>
+          Pule: {cart.pule}
+        </Text>
         <FlatList
           style={{ flex: 1 }}
-          data={items}
+          data={cart.games}
           renderItem={({ item, index }) => (
             <View style={localStyles.betSummary}>
-              <Text style={localStyles.summaryText}>Pule: {item.pule}</Text>
-
               <Text style={localStyles.summaryText}>Jogo: {item.name}</Text>
 
               <Text style={localStyles.summaryText}>
@@ -114,7 +117,7 @@ export const Cart = ({ route, navigation }: Props) => {
               precision: 2,
             }}
           >
-            {calculateAmountGame(items)}
+            {calculateAmountGame(cart.games)}
           </MaskedText>
         </Text>
       </View>
