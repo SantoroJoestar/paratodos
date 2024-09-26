@@ -13,11 +13,15 @@ import { NativeStackScreenProps } from "react-native-screens/lib/typescript/nati
 import { GAMES } from "../constants/GAMES";
 import { GameModel } from "../models/GameModel";
 import { useCart } from "../providers/CartContext";
+import { BottomCart } from "../components/BottomCart";
+import { HStack, Switch } from "native-base";
+import { useSettings } from "../providers/SettingsContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MenuGames">;
 
 export const MenuGames = ({ navigation }: Props) => {
   const { setCurrentGame } = useCart();
+  const { chaveValendo, setChaveValendo } = useSettings();
 
   const navigateToGame = (screen: keyof typeof GAMES) => {
     setCurrentGame(GameModel());
@@ -27,25 +31,38 @@ export const MenuGames = ({ navigation }: Props) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={localStyles.scrollContainer}>
-      <View style={localStyles.container}>
-        <Text style={localStyles.title}>Escolha seu Jogo</Text>
-        <View style={localStyles.gridContainer}>
-          {Object.entries(GAMES).map(([_, game], index) => (
-            <TouchableOpacity
-              key={index}
-              style={localStyles.gameButton}
-              onPress={() => navigateToGame(game.id)}
-            >
-              <Text style={localStyles.gameButtonText}>{game.label}</Text>
-            </TouchableOpacity>
-          ))}
+    <BottomCart navigation={navigation}>
+      <ScrollView contentContainerStyle={localStyles.scrollContainer}>
+        <View style={localStyles.container}>
+          <HStack alignItems="center" space={4} mb={5}>
+            <Text style={[localStyles.title, { marginBottom: 0 }]}>
+              CHAVE VALENDO
+            </Text>
+            <Switch
+              size="lg"
+              value={chaveValendo}
+              onValueChange={(newValue) => setChaveValendo(newValue)}
+            />
+          </HStack>
+          <View style={localStyles.gridContainer}>
+            {Object.entries(GAMES)
+              .filter(([id, game]) => id !== "")
+              .map(([_, game], index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={localStyles.gameButton}
+                  onPress={() => navigateToGame(game.id)}
+                >
+                  <Text style={localStyles.gameButtonText}>{game.label}</Text>
+                </TouchableOpacity>
+              ))}
+          </View>
+          <Text style={localStyles.footerText}>
+            Desenvolvido por Evolved World
+          </Text>
         </View>
-        <Text style={localStyles.footerText}>
-          Desenvolvido por Evolved World
-        </Text>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </BottomCart>
   );
 };
 

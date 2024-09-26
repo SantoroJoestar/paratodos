@@ -1,26 +1,16 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { GameModel } from "../models/GameModel";
 import { GameType } from "../types/game.type";
 import { generatePule } from "../utils/generatePule";
-
-export type CartType = {
-  pule: string;
-  games: GameType[];
-};
+import { CartType } from "../types/cart.type";
+import { CartModel } from "../models/CartModel";
 
 const _controllerCart = () => {
   const [currentGame, setCurrentGame] = useState<GameType>(GameModel());
 
-  const [cart, setCart] = useState<CartType>({
-    pule: generatePule(),
-    games: [],
-  });
+  const [cart, setCart] = useState<CartType>(CartModel());
 
-  const newCart = () =>
-    setCart({
-      pule: generatePule(),
-      games: [],
-    });
+  const newCart = () => setCart(CartModel());
 
   const removeFromCart = (index: number) => {
     setCart((prev) => ({

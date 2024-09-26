@@ -20,6 +20,10 @@ import { ptBR } from "date-fns/locale";
 import { useCart } from "../providers/CartContext";
 
 import { calculateAmount } from "../utils/calculateAmount";
+import { print } from "../utils/print";
+import { GAMES } from "../constants/GAMES";
+import { formatCurrency } from "../utils/formatCurrency";
+import { calculateAmountGame } from "../utils/calculateAmountGame";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
@@ -29,7 +33,7 @@ const HourTimesInitial = {
 };
 
 export const ConfirmGame = ({ navigation }: Props) => {
-  const { setCart, currentGame, setCurrentGame } = useCart();
+  const { cart, newCart, setCart } = useCart();
 
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -39,7 +43,7 @@ export const ConfirmGame = ({ navigation }: Props) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
     setDate(currentDate);
-    setCurrentGame((prev) => ({ ...prev, date: currentDate }));
+    setCart((prev) => ({ ...prev, date: currentDate }));
   };
 
   // Lógica para permitir selecionar apenas um horário
@@ -51,33 +55,24 @@ export const ConfirmGame = ({ navigation }: Props) => {
     }, {} as typeof HourTimesInitial);
 
     setSelectedTimes(updatedTimes);
-    setCurrentGame((prev) => ({
+    setCart((prev) => ({
       ...prev,
       time: Object.entries(updatedTimes)?.find((time) => time[1])?.[0] || "",
     }));
   };
 
-  const confirmBets = () => {
-    // Verificar se há pelo menos uma aposta selecionada
-    if (currentGame.bets.length === 0) {
-      Alert.alert(
-        "Erro",
-        "Você deve fazer pelo menos uma aposta para prosseguir."
-      );
-      return;
-    }
-
-    if (currentGame.time === "") {
+  const confirmBets = async () => {
+    if (cart.time === "") {
       Alert.alert("Erro", "Você deve fazer escolher um horário.");
       return;
     }
 
-    setCart((prev) => ({
-      ...prev,
-      games: [...prev.games, currentGame],
-    }));
+    await print(cart);
 
-    navigation.navigate("Cart");
+    newCart();
+    // Aqui você pode adicionar a lógica para confirmar as apostas
+    Alert.alert("Apostas confirmadas!");
+    navigation.navigate("MainMenu");
     // Navegar para a próxima tela ou realizar outras ações necessárias
   };
 
@@ -117,33 +112,31 @@ export const ConfirmGame = ({ navigation }: Props) => {
           ))}
         </View>
         <View style={localStyles.summaryContainer}>
-          <Text style={localStyles.summaryTitle}>Resumo das Apostas:</Text>
+          <Text style={localStyles.summaryTitle}>Apostas:</Text>
 
           <FlatList
             style={{ flex: 1 }}
-            data={currentGame.bets}
+            data={cart.games}
             renderItem={({ item }) => (
               <View style={localStyles.betSummary}>
                 <Text style={localStyles.summaryText}>
-                  Números: {currentGame.numbers.join(", ")}
-                </Text>
-                <Text style={localStyles.summaryText}>
-                  Prêmios: {numbersSelectedFormated(item.prizes)}
+                  {GAMES[item._id].label}
                 </Text>
 
                 <Text style={localStyles.summaryText}>
-                  Valor:{" "}
-                  <MaskedText
-                    type="currency"
-                    options={{
-                      prefix: "R$ ",
-                      decimalSeparator: ",",
-                      groupSeparator: ".",
-                      precision: 2,
-                    }}
-                  >
-                    {item.valueBet}
-                  </MaskedText>
+                  {item.numbers.join(", ")}
+                </Text>
+
+                <Text style={localStyles.summaryText}>
+                  Apostas:{" "}
+                  {item.bets.map(
+                    (bet) =>
+                      formatCurrency(Number(bet.valueBet)) +
+                      " (Premios: " +
+                      numbersSelectedFormated(bet.prizes) +
+                      "), " +
+                      "\n"
+                  )}
                 </Text>
               </View>
             )}
@@ -162,7 +155,7 @@ export const ConfirmGame = ({ navigation }: Props) => {
                 precision: 2,
               }}
             >
-              {calculateAmount(currentGame.bets)}
+              {calculateAmountGame(cart.games)}
             </MaskedText>
           </Text>
         </View>

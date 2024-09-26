@@ -16,13 +16,16 @@ import OTPInput from "../components/OTPInput";
 import { Button } from "native-base";
 import { useCart } from "../providers/CartContext";
 import { generatePule } from "../utils/generatePule";
+import { formatarNumeros } from "../utils/generateChaves";
+import { useSettings } from "../providers/SettingsContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Game">;
 
 export const Game = ({ navigation, route }: Props) => {
   const { type } = route.params;
 
-  const { currentGame, setCurrentGame } = useCart();
+  const { currentGame, setCurrentGame, cart } = useCart();
+  const { chaveValendo } = useSettings();
 
   const TYPE_GAME = GAMES[type];
 
@@ -33,7 +36,7 @@ export const Game = ({ navigation, route }: Props) => {
   useEffect(() => {
     setCurrentGame((prev) => ({
       ...prev,
-      name: TYPE_GAME.label,
+      _id: TYPE_GAME.id,
       pule: generatePule(),
     }));
   }, [TYPE_GAME]);
@@ -84,6 +87,32 @@ export const Game = ({ navigation, route }: Props) => {
       addNumber(text);
     }
   };
+
+  useEffect(() => {
+    const gerarNumeros = () => {
+      const newNumbers: string[] = [];
+
+      cart.games.forEach((game) => {
+        game.numbers.forEach((number) => {
+          if (number.length < TYPE_GAME.format.replaceAll("-", "").length)
+            return;
+
+          const n = formatarNumeros(number, TYPE_GAME.format);
+
+          if (newNumbers.includes(n) || currentGame.numbers.includes(n)) return;
+
+          newNumbers.push(n);
+        });
+      });
+
+      setCurrentGame((prev) => ({
+        ...prev,
+        numbers: [...prev.numbers, ...newNumbers],
+      }));
+    };
+
+    if (chaveValendo) gerarNumeros();
+  }, [TYPE_GAME]);
 
   return (
     <View style={{ flex: 1, padding: 20 }}>

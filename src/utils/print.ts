@@ -1,30 +1,59 @@
 import { Alert } from "react-native";
 // @ts-ignore
 import * as SunmiPrinterLibrary from "@mitsuharu/react-native-sunmi-printer-library";
-import { GameType } from "../types/game.type";
 
-import { calculateAmount } from "./calculateAmount";
 import { formatCurrency } from "./formatCurrency";
 import { format } from "date-fns";
-import { CartType } from "../providers/CartContext";
+import { CartType } from "../types/cart.type";
+import { GAMES } from "../constants/GAMES";
+import { calculateAmountGame } from "./calculateAmountGame";
+import { numbersSelectedFormated } from "./numbersSelectedFormated";
 
 export const print = async (cart: CartType) => {
   try {
     await SunmiPrinterLibrary.prepare();
 
-    const content = cart.games
-      .map(
-        (game) => `
-  Pule: ${cart.pule}
-  Jogo: ${game.name}
-  Data: ${format(game.date, "dd/MM/yyyy")}
-  Horário: ${game.time}
-  Números apostados: ${game.numbers.join(", ")}
-  Valores apostados: ${game.bets.map((bet) => bet.valueBet).join(", ")}
-  Total da aposta: ${formatCurrency(Number(calculateAmount(game.bets)))}
-`
-      )
-      .join("\n\n");
+    const header = `
+    DEMO-NAO VALIDO
+    Via do Cliente
+    Data: ${format(cart.date, "dd/MM/yyyy")}
+    Pule: ${cart.pule}
+    Data: ${format(cart.date, "dd/MM/yyyy HH:mm:ss")}
+    Terminal: 000001
+    Operador: TESTE\n
+    -----------------------------
+    APOSTAS\n`;
+
+    // Dinamicamente gerar os jogos
+    const jogos = cart.games
+      .map((game, index) => {
+        const numerosFormatados = game.numbers.join(" ");
+        const apostasFormatadas = game.bets
+          .map(
+            (bet) =>
+              `${GAMES[game._id].label[0]} ${numbersSelectedFormated(bet.prizes)} ---------  ${formatCurrency(Number(bet.valueBet))}\n`
+          )
+          .join("\n\n");
+
+        return (
+          `${GAMES[game._id].label.toUpperCase()}\n` +
+          `${numerosFormatados}\n` +
+          `${apostasFormatadas}\n`
+        );
+      })
+      .join("\n");
+
+    // Rodapé fixo
+    const footer = `
+    -----------------------------
+    Total: ${formatCurrency(Number(calculateAmountGame(cart.games)))}
+    -----------------------------
+    Vale o impresso. Confira seu jogo \n
+    DEMO- BILHETE NAO VALIDO
+    Reclamações: 7 dia(s)\n`;
+
+    // Conteúdo completo
+    const content = header + jogos + footer;
 
     await SunmiPrinterLibrary.printText(content)
       .then(() => {

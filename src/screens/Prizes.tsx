@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
 import { border } from "native-base/lib/typescript/theme/styled-system";
 import { BetType } from "../types/bet.type";
 import { useCart } from "../providers/CartContext";
+import { GAMES } from "../constants/GAMES";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Prizes">;
 
@@ -28,7 +29,9 @@ export const Prizes = ({ navigation }: Props) => {
 
   const [betAmount, setBetAmount] = useState("");
 
-  const { currentGame, setCurrentGame } = useCart();
+  const { cart, currentGame, setCurrentGame, setCart } = useCart();
+
+  const TYPE_GAME = GAMES[currentGame._id];
 
   const { isOpen, onOpen, onClose } = useDisclose();
 
@@ -39,6 +42,10 @@ export const Prizes = ({ navigation }: Props) => {
       setSelectedPrizes([...selectedPrizes, prizeNumber]);
     }
   };
+
+  useEffect(() => {
+    onOpen();
+  }, []);
 
   const remove = (index: number) => {
     setSelectedPrizes((prev) => prev.filter((_, i) => i !== index));
@@ -69,9 +76,17 @@ export const Prizes = ({ navigation }: Props) => {
     if (currentGame.bets.length === 0) {
       Alert.alert("Erro", "Faça pelo menos uma aposta antes de prosseguir.");
     } else {
-      navigation.navigate("ConfirmGame");
+      setCart((prev) => ({
+        ...prev,
+        games: [...prev.games, currentGame],
+      }));
+      navigation.navigate("Cart");
     }
   };
+
+  useEffect(() => {
+    if (TYPE_GAME.markAll) setSelectedPrizes(["1", "2", "3", "4", "5"]);
+  }, [TYPE_GAME]);
 
   return (
     <View style={styles.container}>
@@ -110,18 +125,41 @@ export const Prizes = ({ navigation }: Props) => {
                 keyboardType="numeric"
               />
             </View>
-            {["1", "2", "3", "4", "5"].map((prizeNumber) => (
+            {TYPE_GAME.markAll && (
               <Button
-                key={prizeNumber}
-                variant={
-                  selectedPrizes.includes(prizeNumber) ? "solid" : "outline"
-                }
+                bg={"blue.700"}
                 style={[{ marginBottom: 10 }]}
-                onPress={() => handlePrizeSelection(prizeNumber)}
+                width={"fit"}
+                onPress={() => setSelectedPrizes(["1", "2", "3", "4", "5"])}
               >
-                {`${prizeNumber}º Prêmio`}
+                Concorrendo do 1º ao 5º
               </Button>
-            ))}
+            )}
+            {!TYPE_GAME.markAll && (
+              <>
+                <Button
+                  bg={"blue.700"}
+                  style={[{ marginBottom: 10 }]}
+                  width={"fit"}
+                  onPress={() => setSelectedPrizes(["1", "2", "3", "4", "5"])}
+                >
+                  Selecionar do 1º ao 5º
+                </Button>
+
+                {["1", "2", "3", "4", "5"].map((prizeNumber) => (
+                  <Button
+                    key={prizeNumber}
+                    variant={
+                      selectedPrizes.includes(prizeNumber) ? "solid" : "outline"
+                    }
+                    style={[{ marginBottom: 10 }]}
+                    onPress={() => handlePrizeSelection(prizeNumber)}
+                  >
+                    {`${prizeNumber}º Prêmio`}
+                  </Button>
+                ))}
+              </>
+            )}
           </View>
           <View style={{ flexDirection: "row" }}>
             <Button flex={1} mr={4} onPress={onClose}>

@@ -1,11 +1,10 @@
+import { GAMES } from "../constants/GAMES";
 import { BetType } from "./bet.type";
 
 export type GameType = {
-  name: string;
   bets: BetType[];
   numbers: string[];
-  date: Date;
-  time: string;
+  _id: keyof typeof GAMES;
 };
 
 // Milhar

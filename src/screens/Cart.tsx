@@ -16,6 +16,8 @@ import { format } from "date-fns";
 import { calculateAmountGame } from "../utils/calculateAmountGame";
 import { print } from "../utils/print";
 import { generatePule } from "../utils/generatePule";
+import { GAMES } from "../constants/GAMES";
+import { formatCurrency } from "../utils/formatCurrency";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
@@ -32,14 +34,7 @@ export const Cart = ({ route, navigation }: Props) => {
       return;
     }
 
-    Alert.alert("Imprimindo nota...");
-
-    await print(cart);
-
-    newCart();
-    // Aqui você pode adicionar a lógica para confirmar as apostas
-    Alert.alert("Apostas confirmadas!");
-    navigation.navigate("MainMenu");
+    navigation.navigate("ConfirmGame");
     // Navegar para a próxima tela ou realizar outras ações necessárias
   };
 
@@ -54,24 +49,19 @@ export const Cart = ({ route, navigation }: Props) => {
           data={cart.games}
           renderItem={({ item, index }) => (
             <View style={localStyles.betSummary}>
-              <Text style={localStyles.summaryText}>Jogo: {item.name}</Text>
-
               <Text style={localStyles.summaryText}>
-                Data: {format(item.date, "dd/MM/yyyy")}
+                {GAMES[item._id].label}
               </Text>
 
-              <Text style={localStyles.summaryText}>Horário: {item.time}</Text>
-
               <Text style={localStyles.summaryText}>
-                Números: {item.numbers.join(", ")}
+                {item.numbers.join(", ")}
               </Text>
 
               <Text style={localStyles.summaryText}>
                 Apostas:{" "}
                 {item.bets.map(
                   (bet) =>
-                    "R$ " +
-                    bet.valueBet +
+                    formatCurrency(Number(bet.valueBet)) +
                     " (Premios: " +
                     numbersSelectedFormated(bet.prizes) +
                     "), " +
