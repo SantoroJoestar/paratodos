@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     padding: 5,
     backgroundColor: '#f0f0f5',
-    flexDirection: "column"
+    flexDirection: "column",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -14,11 +14,10 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
-    color: '#6c63ff',
   },
   form: {
     backgroundColor: '#ffffff',

@@ -111,7 +111,7 @@ export const Game = ({ navigation, route }: Props) => {
       }));
     };
 
-    if (chaveValendo) gerarNumeros();
+    if (chaveValendo && !TYPE_GAME.max) gerarNumeros();
   }, [TYPE_GAME]);
 
   return (
@@ -138,8 +138,8 @@ export const Game = ({ navigation, route }: Props) => {
         )}
         keyExtractor={(item, index) => index.toString()}
       />
-      <Button onPress={handleNext}>
-        <Text style={styles.actionButtonText}>Próximo</Text>
+      <Button bg="blue.700" onPress={handleNext}>
+        Próximo
       </Button>
     </View>
   );
@@ -151,7 +151,7 @@ const localStyles = StyleSheet.create({
     borderColor: "#ccc",
     paddingHorizontal: 10,
     marginBottom: 10,
-    color: 'black',
+    color: "black",
   },
   numberItem: {
     paddingHorizontal: 30,

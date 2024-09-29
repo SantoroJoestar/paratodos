@@ -16,7 +16,9 @@ export const BottomCart = ({ children, navigation }: Props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 1, paddingBottom: 60 }}>{children}</View>
+      <View style={{ flex: 1, paddingBottom: cart.games.length > 0 ? 60 : 0 }}>
+        {children}
+      </View>
       {cart.games.length > 0 && (
         <View
           position="absolute"
@@ -45,7 +47,7 @@ export const BottomCart = ({ children, navigation }: Props) => {
             </Text>
           </View>
           {/* @ts-ignore */}
-          <Button onPress={() => navigation.navigate("Cart")}>
+          <Button bg={"yellow.600"} onPress={() => navigation.navigate("Cart")}>
             Ver carrinho
           </Button>
         </View>

@@ -72,7 +72,7 @@ export const Routes = () => {
         />
         <Stack.Screen
           name="Profile"
-          options={{ title: "" }}
+          options={{ title: "Meu Perfil" }}
           component={Profile}
         />
       </Stack.Navigator>

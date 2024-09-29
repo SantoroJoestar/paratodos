@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { GameModel } from "../models/GameModel";
 import { GameType } from "../types/game.type";
-import { generatePule } from "../utils/generatePule";
+
 import { CartType } from "../types/cart.type";
 import { CartModel } from "../models/CartModel";
 

@@ -21,6 +21,7 @@ import { border } from "native-base/lib/typescript/theme/styled-system";
 import { BetType } from "../types/bet.type";
 import { useCart } from "../providers/CartContext";
 import { GAMES } from "../constants/GAMES";
+import { useSettings } from "../providers/SettingsContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Prizes">;
 
@@ -30,6 +31,7 @@ export const Prizes = ({ navigation }: Props) => {
   const [betAmount, setBetAmount] = useState("");
 
   const { cart, currentGame, setCurrentGame, setCart } = useCart();
+  const { chaveValendo } = useSettings();
 
   const TYPE_GAME = GAMES[currentGame._id];
 
@@ -80,6 +82,9 @@ export const Prizes = ({ navigation }: Props) => {
         ...prev,
         games: [...prev.games, currentGame],
       }));
+
+      if (chaveValendo) navigation.navigate("MenuGames");
+
       navigation.navigate("Cart");
     }
   };
@@ -126,14 +131,17 @@ export const Prizes = ({ navigation }: Props) => {
               />
             </View>
             {TYPE_GAME.markAll && (
-              <Button
-                bg={"blue.700"}
-                style={[{ marginBottom: 10 }]}
-                width={"fit"}
-                onPress={() => setSelectedPrizes(["1", "2", "3", "4", "5"])}
-              >
-                Concorrendo do 1º ao 5º
-              </Button>
+              <>
+                <Button
+                  bg={"blue.700"}
+                  style={[{ marginBottom: 10 }]}
+                  width={"fit"}
+                  onPress={() => setSelectedPrizes(["1", "2", "3", "4", "5"])}
+                >
+                  Concorrendo do 1º ao 5º
+                </Button>
+                <View style={{ width: "100%", height: 190 }} />
+              </>
             )}
             {!TYPE_GAME.markAll && (
               <>
@@ -152,6 +160,11 @@ export const Prizes = ({ navigation }: Props) => {
                     variant={
                       selectedPrizes.includes(prizeNumber) ? "solid" : "outline"
                     }
+                    bg={
+                      selectedPrizes.includes(prizeNumber)
+                        ? "orange.500"
+                        : "white"
+                    }
                     style={[{ marginBottom: 10 }]}
                     onPress={() => handlePrizeSelection(prizeNumber)}
                   >
@@ -162,10 +175,10 @@ export const Prizes = ({ navigation }: Props) => {
             )}
           </View>
           <View style={{ flexDirection: "row" }}>
-            <Button flex={1} mr={4} onPress={onClose}>
+            <Button bg={"red.500"} flex={1} mr={4} onPress={onClose}>
               Fechar
             </Button>
-            <Button flex={1} onPress={handleConfirm}>
+            <Button bg="blue.700" flex={1} onPress={handleConfirm}>
               Confirmar
             </Button>
           </View>
@@ -216,10 +229,16 @@ export const Prizes = ({ navigation }: Props) => {
           keyExtractor={(item, index) => index.toString()}
         />
         <View style={{ flexDirection: "row" }}>
-          <Button flex={1} mr={5} onPress={onOpen} variant={"subtle"}>
+          <Button
+            bg="green.500"
+            flex={1}
+            mr={5}
+            onPress={onOpen}
+            variant={"subtle"}
+          >
             Prêmios
           </Button>
-          <Button flex={1} onPress={handleProceed}>
+          <Button bg="blue.700" flex={1} onPress={handleProceed}>
             Prosseguir
           </Button>
         </View>

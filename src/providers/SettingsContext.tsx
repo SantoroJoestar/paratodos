@@ -2,10 +2,13 @@ import React, { createContext, useContext, useState } from "react";
 
 const _controllerSetttings = () => {
   const [chaveValendo, setChaveValendo] = useState(false);
+  const [showChave, setShowChave] = useState(false);
 
   return {
     chaveValendo,
     setChaveValendo,
+    showChave,
+    setShowChave,
   };
 };
 

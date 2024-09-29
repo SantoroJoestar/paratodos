@@ -3,7 +3,8 @@ import { GameType } from "./game.type";
 
 export type CartType = {
   pule: string;
-  date: Date;
+  dateBet: Date;
+  dateCreated: Date;
   time: string;
   games: GameType[];
 };

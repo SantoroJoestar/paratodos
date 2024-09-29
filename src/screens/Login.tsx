@@ -11,6 +11,7 @@ import {
 import { RootStackParamList } from "../types/routes.type";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { print } from "../utils/print";
+import { Button } from "native-base";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
@@ -49,12 +50,9 @@ export const Login = ({ navigation }: Props) => {
               autoCorrect={false}
             />
           </View>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={navigateToMainMenu}
-          >
-            <Text style={styles.actionButtonText}>Entrar</Text>
-          </TouchableOpacity>
+          <Button bg={"yellow.600"} onPress={navigateToMainMenu}>
+            Entrar
+          </Button>
         </View>
       </View>
     </>
@@ -69,8 +67,8 @@ const styles = StyleSheet.create({
     // padding: 16,
   },
   logo: {
-    width: 500, // Largura desejada da imagem
-    height: 232, // Altura desejada da imagem
+    width: "100%", // Largura desejada da imagem
+    height: "30.1%", // Altura desejada da imagem
     resizeMode: "contain", // Modo de redimensionamento da imagem
     alignSelf: "center", // Alinhamento centralizado
     marginBottom: 24, // Espaço abaixo da imagem
@@ -80,7 +78,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 24,
     textAlign: "center",
-    color: "#6c63ff",
+    color: "blue",
   },
   form: {
     backgroundColor: "#ffffff",

@@ -2,7 +2,8 @@ import { CartType } from "../types/cart.type";
 import { generatePule } from "../utils/generatePule";
 
 export const CartModel = (obj: Partial<CartType> = {}): CartType => ({
-    date: obj?.date || new Date(),
+    dateBet: obj?.dateBet || new Date(),
+    dateCreated: obj?.dateCreated || new Date(),
     games: obj?.games || [],
     pule: obj?.pule || generatePule(),
     time: obj?.time || "",

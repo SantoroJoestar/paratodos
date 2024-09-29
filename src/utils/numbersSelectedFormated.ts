@@ -21,7 +21,7 @@ export const numbersSelectedFormated = (numbersString: string[]) => {
         result += start;
       } else {
         // Se o intervalo tem mais de um número
-        result += `${start}-${end}`;
+        result += `${start} - ${end}`;
       }
 
       if (i < numbers.length) {

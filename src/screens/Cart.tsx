@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 
 import { styles } from "../styles"; // Importe os estilos comuns
@@ -18,11 +18,13 @@ import { print } from "../utils/print";
 import { generatePule } from "../utils/generatePule";
 import { GAMES } from "../constants/GAMES";
 import { formatCurrency } from "../utils/formatCurrency";
+import { useSettings } from "../providers/SettingsContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
 export const Cart = ({ route, navigation }: Props) => {
   const { cart, newCart, removeFromCart } = useCart();
+  const { setShowChave } = useSettings();
 
   const confirmBets = async () => {
     // Verificar se há pelo menos uma aposta selecionada
@@ -37,6 +39,13 @@ export const Cart = ({ route, navigation }: Props) => {
     navigation.navigate("ConfirmGame");
     // Navegar para a próxima tela ou realizar outras ações necessárias
   };
+
+  useEffect(() => {
+    if (cart.games.length === 0) {
+      setShowChave(false);
+      navigation.replace("MenuGames");
+    }
+  }, [cart.games]);
 
   return (
     <View style={styles.scrollContainer}>
@@ -85,7 +94,7 @@ export const Cart = ({ route, navigation }: Props) => {
               </Text>
 
               <Button
-                variant="outline"
+                bg={"red.500"}
                 mt={2}
                 onPress={() => removeFromCart(index)}
               >
@@ -112,12 +121,15 @@ export const Cart = ({ route, navigation }: Props) => {
         </Text>
       </View>
       <Button
-        variant={"outline"}
-        onPress={() => navigation.navigate("MenuGames")}
+        bg={"blue.700"}
+        onPress={() => {
+          setShowChave(true);
+          navigation.navigate("MenuGames");
+        }}
       >
         Fazer mais Apostas
       </Button>
-      <Button mt={2} onPress={confirmBets}>
+      <Button mt={2} onPress={confirmBets} bg="green.600">
         Confirmar
       </Button>
     </View>

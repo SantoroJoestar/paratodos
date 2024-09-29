@@ -15,11 +15,10 @@ import { RootStackParamList } from "../types/routes.type";
 import { MaskedText } from "react-native-mask-text";
 import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
 import { Button } from "native-base";
-import { format } from "date-fns";
+import { format, formatDistance, sub } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useCart } from "../providers/CartContext";
 
-import { calculateAmount } from "../utils/calculateAmount";
 import { print } from "../utils/print";
 import { GAMES } from "../constants/GAMES";
 import { formatCurrency } from "../utils/formatCurrency";
@@ -28,12 +27,15 @@ import { calculateAmountGame } from "../utils/calculateAmountGame";
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
 const HourTimesInitial = {
-  "14h": false,
-  "19h": false,
+  "13": false,
+  "16": false,
+  "19": false,
 };
 
 export const ConfirmGame = ({ navigation }: Props) => {
   const { cart, newCart, setCart } = useCart();
+
+  const dateNow = new Date();
 
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -43,16 +45,16 @@ export const ConfirmGame = ({ navigation }: Props) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
     setDate(currentDate);
-    setCart((prev) => ({ ...prev, date: currentDate }));
+    setCart((prev) => ({ ...prev, dateBet: currentDate }));
   };
 
   // Lógica para permitir selecionar apenas um horário
-  const toggleTime = (time: keyof typeof HourTimesInitial) => {
+  const toggleTime = (time: keyof typeof selectedTimes) => {
     // Atualizar o estado, desmarcando todos os outros tempos e marcando apenas o selecionado
-    const updatedTimes = Object.keys(HourTimesInitial).reduce((acc, cur) => {
-      acc[cur as keyof typeof HourTimesInitial] = cur === time;
+    const updatedTimes = Object.keys(selectedTimes).reduce((acc, cur) => {
+      acc[cur as keyof typeof selectedTimes] = cur === time;
       return acc;
-    }, {} as typeof HourTimesInitial);
+    }, {} as typeof selectedTimes);
 
     setSelectedTimes(updatedTimes);
     setCart((prev) => ({
@@ -71,22 +73,16 @@ export const ConfirmGame = ({ navigation }: Props) => {
 
     newCart();
     // Aqui você pode adicionar a lógica para confirmar as apostas
-    Alert.alert("Apostas confirmadas!");
-    navigation.navigate("MainMenu");
+    navigation.navigate("MenuGames");
     // Navegar para a próxima tela ou realizar outras ações necessárias
   };
 
   return (
     <View style={styles.scrollContainer}>
       <View style={styles.container}>
-        <TouchableOpacity
-          style={localStyles.datePickerButton}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Text style={localStyles.datePickerButtonText}>
-            {format(date, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-          </Text>
-        </TouchableOpacity>
+        <Button bg={"blue.700"} onPress={() => setShowDatePicker(true)}>
+          {format(date, "EEEE, dd 'de' MMM 'de' yyyy", { locale: ptBR })}
+        </Button>
         {showDatePicker && (
           <DateTimePicker
             value={date}
@@ -94,22 +90,32 @@ export const ConfirmGame = ({ navigation }: Props) => {
             display="calendar"
             onChange={onChange}
             timeZoneName="America/Sao_Paulo"
+            minimumDate={dateNow}
           />
         )}
         <View style={localStyles.timeContainer}>
-          {Object.keys(HourTimesInitial).map((time) => (
-            <TouchableOpacity
-              key={time}
-              style={[
-                localStyles.timeButton,
-                selectedTimes[time as keyof typeof HourTimesInitial] &&
-                  localStyles.selectedTimeButton,
-              ]}
-              onPress={() => toggleTime(time as keyof typeof HourTimesInitial)}
-            >
-              <Text style={localStyles.timeButtonText}>{time}</Text>
-            </TouchableOpacity>
-          ))}
+          {Object.keys(selectedTimes)
+            .sort((a, b) => (Number(a) < Number(b) ? -1 : 1))
+            .filter((time) => {
+              const selectedDateTime = new Date(date); // Clona a data selecionada
+
+              selectedDateTime.setHours(Number(time), 0, 0, 0); // Define a hora com base no botão
+
+              return selectedDateTime > dateNow; // Filtra se a hora do botão for no futuro
+            })
+            .map((time) => (
+              <Button
+                key={time}
+                bg={
+                  selectedTimes?.[time as keyof typeof selectedTimes]
+                    ? "blue.700"
+                    : "gray.400"
+                }
+                onPress={() => toggleTime(time as keyof typeof selectedTimes)}
+              >
+                <Text style={localStyles.timeButtonText}>{time}h</Text>
+              </Button>
+            ))}
         </View>
         <View style={localStyles.summaryContainer}>
           <Text style={localStyles.summaryTitle}>Apostas:</Text>
@@ -159,8 +165,8 @@ export const ConfirmGame = ({ navigation }: Props) => {
             </MaskedText>
           </Text>
         </View>
-        <Button onPress={confirmBets}>
-          <Text style={styles.actionButtonText}>Confirmar</Text>
+        <Button onPress={confirmBets} bg="blue.700">
+          Confirmar
         </Button>
       </View>
     </View>
@@ -186,6 +192,7 @@ const localStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     marginVertical: 5,
+    marginTop: 20,
   },
   timeButton: {
     backgroundColor: "#ccc",

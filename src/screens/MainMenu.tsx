@@ -5,6 +5,7 @@ import { styles } from "../styles"; // Importe os estilos comuns
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
 import { BottomCart } from "../components/BottomCart";
+import { Button, Divider } from "native-base";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MainMenu">;
 
@@ -18,21 +19,59 @@ export const MainMenu = ({ navigation }: Props) => {
   return (
     <BottomCart navigation={navigation}>
       <View style={styles.container}>
-        <TouchableOpacity
-          style={localStyles.menuButton}
+        <Button
+          bg={"yellow.600"}
           onPress={() => navigation.navigate("MenuGames")}
         >
-          <Text style={localStyles.menuButtonText}>Jogos</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={localStyles.menuButton}
+          <Text style={localStyles.menuButtonText}>JOGOS</Text>
+        </Button>
+        <Divider
+          my="5"
+          _light={{
+            bg: "muted.800",
+          }}
+        />
+
+        <Button bg={"blue.700"}>
+          <Text style={localStyles.menuButtonText}>REPETIR PULE</Text>
+        </Button>
+        <Button bg={"blue.700"} mt={3}>
+          <Text style={localStyles.menuButtonText}>VENDAS DO DIA</Text>
+        </Button>
+        <Button bg={"blue.700"} mt={3}>
+          <Text style={localStyles.menuButtonText}>RESULTADO DO DIA</Text>
+        </Button>
+        <Button bg={"blue.700"} mt={3}>
+          <Text style={localStyles.menuButtonText}>MILHARES COTADAS</Text>
+        </Button>
+        <Button bg={"blue.700"} mt={3}>
+          <Text style={localStyles.menuButtonText}>PULE PREMIADA</Text>
+        </Button>
+        <Button bg={"blue.700"} mt={3}>
+          <Text style={localStyles.menuButtonText}>CANCELAMENTO DE PULE</Text>
+        </Button>
+        <Divider
+          my="5"
+          _light={{
+            bg: "muted.800",
+          }}
+        />
+        <Button
+          bg={"blue.700"}
+          mt={0}
           onPress={() => navigation.navigate("Profile")}
         >
-          <Text style={localStyles.menuButtonText}>Meu Perfil</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={localStyles.menuButton} onPress={handleLogout}>
-          <Text style={localStyles.menuButtonText}>Sair</Text>
-        </TouchableOpacity>
+          <Text style={localStyles.menuButtonText}>MEU PERFIL</Text>
+        </Button>
+        <Divider
+          my="5"
+          _light={{
+            bg: "muted.800",
+          }}
+        />
+        <Button bg={"red.500"} onPress={handleLogout}>
+          <Text style={localStyles.menuButtonText}>SAIR</Text>
+        </Button>
       </View>
     </BottomCart>
   );

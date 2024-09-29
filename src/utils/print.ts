@@ -14,15 +14,18 @@ export const print = async (cart: CartType) => {
     await SunmiPrinterLibrary.prepare();
 
     const header = `
-    DEMO-NAO VALIDO
     Via do Cliente
-    Data: ${format(cart.date, "dd/MM/yyyy")}
+
+    Data: ${format(cart.dateCreated, "dd/MM/yyyy HH:mm:ss")}
+
     Pule: ${cart.pule}
-    Data: ${format(cart.date, "dd/MM/yyyy HH:mm:ss")}
+    Data da Aposta: ${format(cart.dateBet, "dd/MM/yyyy")}
+    Extração: ${cart.time} HRS
     Terminal: 000001
-    Operador: TESTE\n
-    -----------------------------
-    APOSTAS\n`;
+    Cambista: TESTE
+    - - - - - - - - - - - - - - - - - - - -
+                    APOSTAS
+    - - - - - - - - - - - - - - - - - - - -\n`;
 
     // Dinamicamente gerar os jogos
     const jogos = cart.games
@@ -31,7 +34,9 @@ export const print = async (cart: CartType) => {
         const apostasFormatadas = game.bets
           .map(
             (bet) =>
-              `${GAMES[game._id].label[0]} ${numbersSelectedFormated(bet.prizes)} ---------  ${formatCurrency(Number(bet.valueBet))}\n`
+              `${GAMES[game._id].label[0]} ${numbersSelectedFormated(
+                bet.prizes
+              )} ---------  ${formatCurrency(Number(bet.valueBet))}\n`
           )
           .join("\n\n");
 
@@ -45,24 +50,22 @@ export const print = async (cart: CartType) => {
 
     // Rodapé fixo
     const footer = `
-    -----------------------------
+    - - - - - - - - - - - - - - -
     Total: ${formatCurrency(Number(calculateAmountGame(cart.games)))}
-    -----------------------------
-    Vale o impresso. Confira seu jogo \n
-    DEMO- BILHETE NAO VALIDO
-    Reclamações: 7 dia(s)\n`;
+    - - - - - - - - - - - - - - - - -
+    Reclamações: 7 dia(s)
+    - - - - - - - - - - - - - - - - -\n`;
 
     // Conteúdo completo
     const content = header + jogos + footer;
 
-    await SunmiPrinterLibrary.printText(content)
-      .then(() => {
-        Alert.alert("Impressão realizada com sucesso");
-      })
-      .catch((error: Error) => {
-        Alert.alert("Erro na impressão", error.message);
-      });
+    await SunmiPrinterLibrary.printText(content);
+
+    const qrCodeContent = cart.pule;
+    await SunmiPrinterLibrary.printQRCode(qrCodeContent, 8, "middle");
+
+    Alert.alert("Apostas confirmadas! Impressão realizada com sucesso");
   } catch (error: any) {
-    Alert.alert("This device is not supported.");
+    Alert.alert("Erro na impressão: ", error.message);
   }
 };

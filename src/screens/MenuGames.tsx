@@ -14,14 +14,14 @@ import { GAMES } from "../constants/GAMES";
 import { GameModel } from "../models/GameModel";
 import { useCart } from "../providers/CartContext";
 import { BottomCart } from "../components/BottomCart";
-import { HStack, Switch } from "native-base";
+import { Button, HStack, Switch } from "native-base";
 import { useSettings } from "../providers/SettingsContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MenuGames">;
 
 export const MenuGames = ({ navigation }: Props) => {
   const { setCurrentGame } = useCart();
-  const { chaveValendo, setChaveValendo } = useSettings();
+  const { chaveValendo, setChaveValendo, showChave } = useSettings();
 
   const navigateToGame = (screen: keyof typeof GAMES) => {
     setCurrentGame(GameModel());
@@ -34,32 +34,32 @@ export const MenuGames = ({ navigation }: Props) => {
     <BottomCart navigation={navigation}>
       <ScrollView contentContainerStyle={localStyles.scrollContainer}>
         <View style={localStyles.container}>
-          <HStack alignItems="center" space={4} mb={5}>
-            <Text style={[localStyles.title, { marginBottom: 0 }]}>
-              CHAVE VALENDO
-            </Text>
-            <Switch
-              size="lg"
-              value={chaveValendo}
-              onValueChange={(newValue) => setChaveValendo(newValue)}
-            />
-          </HStack>
+          {showChave && (
+            <HStack alignItems="center" space={4} mb={5}>
+              <Text style={[localStyles.title, { marginBottom: 0 }]}>
+                CHAVE VALENDO
+              </Text>
+              <Switch
+                size="lg"
+                value={chaveValendo}
+                onValueChange={(newValue) => setChaveValendo(newValue)}
+              />
+            </HStack>
+          )}
           <View style={localStyles.gridContainer}>
             {Object.entries(GAMES)
               .filter(([id, game]) => id !== "")
               .map(([_, game], index) => (
-                <TouchableOpacity
+                <Button
+                  bg={"blue.700"}
                   key={index}
                   style={localStyles.gameButton}
                   onPress={() => navigateToGame(game.id)}
                 >
                   <Text style={localStyles.gameButtonText}>{game.label}</Text>
-                </TouchableOpacity>
+                </Button>
               ))}
           </View>
-          <Text style={localStyles.footerText}>
-            Desenvolvido por Evolved World
-          </Text>
         </View>
       </ScrollView>
     </BottomCart>
@@ -71,8 +71,7 @@ const localStyles = StyleSheet.create({
     flexGrow: 1,
   },
   container: {
-    padding: 20,
-    paddingBottom: 50, // Ajuste para garantir espaço para o rodapé
+    padding: 10, // Ajuste para garantir espaço para o rodapé
   },
   title: {
     fontSize: 24,
@@ -86,18 +85,16 @@ const localStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   gameButton: {
-    backgroundColor: "#6c63ff",
-    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
     width: "30%", // Mantém 3 botões por linha
     aspectRatio: 1, // Garantindo que os botões sejam quadrados
-    padding: 10, // Espaçamento interno ajustado
+    height: 1,
   },
   gameButtonText: {
     color: "#fff",
-    fontSize: 14, // Ajuste para acomodar títulos maiores
+    fontSize: 16, // Ajuste para acomodar títulos maiores
     fontWeight: "bold",
     textAlign: "center",
   },
