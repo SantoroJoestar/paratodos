@@ -35,6 +35,7 @@ export const Routes = () => {
       await new Promise((resolve) => setTimeout(resolve, 500)); // Simulando atraso
       setLoading(false);
     };
+
     setLoading(true);
     checkAuth();
   }, [authenticated]);

@@ -67,6 +67,8 @@ export const print = async (cart: CartType, cambista: UserType) => {
 
     await SunmiPrinterLibrary.printQRCode(qrCodeContent, 10, "middle");
 
+    await SunmiPrinterLibrary.printText("\n\n");
+
     Alert.alert("Apostas confirmadas! Impressão realizada com sucesso");
   } catch (error: any) {
     Alert.alert("Erro na impressão: ", error.message);

@@ -12,10 +12,10 @@ import { UserType } from "../types/user.type";
 type Props = NativeStackScreenProps<RootStackParamList, "MainMenu">;
 
 export const MainMenu = ({ navigation }: Props) => {
-  const { setUser } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    setUser({} as UserType);
+    logout();
   };
 
   return (

@@ -19,7 +19,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
 export const Login = ({ navigation }: Props) => {
   const toast = useToast();
-  const { setUser } = useAuth();
+  const { login: loginAuth } = useAuth();
   const [form, setForm] = useState({
     login: "",
     password: "",
@@ -28,7 +28,7 @@ export const Login = ({ navigation }: Props) => {
   const handleLogin = async () => {
     try {
       const user = await login(form);
-      setUser(user);
+      loginAuth(user);
       toast.show({
         render: () => {
           return (
