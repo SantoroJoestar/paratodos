@@ -14,10 +14,13 @@ import { BottomCart } from "../components/BottomCart";
 import { RootStackParamList } from "../types/routes.type";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { Button } from "native-base";
+import { useAuth } from "../providers/AuthContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
 
 export const Profile = ({ navigation }: Props) => {
+  const { user } = useAuth();
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
@@ -29,19 +32,11 @@ export const Profile = ({ navigation }: Props) => {
         </TouchableOpacity>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Nome</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite seu nome"
-            placeholderTextColor="#ccc"
-          />
+          <Text style={{ fontSize: 16 }}>{user.name}</Text>
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Usuário</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite seu login"
-            placeholderTextColor="#ccc"
-          />
+          <Text style={{ fontSize: 16 }}>{user.login}</Text>
         </View>
         {/* <View style={styles.inputContainer}>
             <Text style={styles.label}>Endereço</Text>

@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  View,
   Text,
   StyleSheet,
   Alert,
@@ -14,7 +13,7 @@ import { styles } from "../styles"; // Import common styles
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
 import { MaskedText, MaskedTextInput } from "react-native-mask-text";
-import { Actionsheet, Button, useDisclose } from "native-base";
+import { Actionsheet, Button, useDisclose, View } from "native-base";
 
 import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
 import { border } from "native-base/lib/typescript/theme/styled-system";
@@ -29,6 +28,7 @@ export const Prizes = ({ navigation }: Props) => {
   const [selectedPrizes, setSelectedPrizes] = useState<string[]>([]);
 
   const [betAmount, setBetAmount] = useState("");
+  const [selectAll, setSelectAll] = useState(true);
 
   const { cart, currentGame, setCurrentGame, setCart } = useCart();
   const { chaveValendo } = useSettings();
@@ -96,7 +96,7 @@ export const Prizes = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
       <Actionsheet isOpen={isOpen} onClose={onClose}>
-        <Actionsheet.Content>
+        <Actionsheet.Content minHeight={"xl"}>
           <View
             style={{ paddingHorizontal: 20, paddingTop: 30, width: "100%" }}
           >
@@ -149,7 +149,15 @@ export const Prizes = ({ navigation }: Props) => {
                   bg={"blue.700"}
                   style={[{ marginBottom: 10 }]}
                   width={"fit"}
-                  onPress={() => setSelectedPrizes(["1", "2", "3", "4", "5"])}
+                  onPress={() => {
+                    if (selectAll) {
+                      setSelectAll(false);
+                      setSelectedPrizes(["1", "2", "3", "4", "5"]);
+                    } else {
+                      setSelectAll(true);
+                      setSelectedPrizes([]);
+                    }
+                  }}
                 >
                   Selecionar do 1º ao 5º
                 </Button>
@@ -174,7 +182,7 @@ export const Prizes = ({ navigation }: Props) => {
               </>
             )}
           </View>
-          <View style={{ flexDirection: "row" }}>
+          <View style={{ flexDirection: "row", marginTop: 10 }}>
             <Button bg={"red.500"} flex={1} mr={4} onPress={onClose}>
               Fechar
             </Button>
@@ -273,7 +281,6 @@ const localStyles = StyleSheet.create({
     elevation: 5,
   },
   modalText: {
-    marginBottom: 15,
     textAlign: "center",
     fontSize: 18,
     fontWeight: "bold",

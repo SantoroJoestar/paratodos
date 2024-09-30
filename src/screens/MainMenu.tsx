@@ -6,14 +6,16 @@ import { NativeStackScreenProps } from "react-native-screens/lib/typescript/nati
 import { RootStackParamList } from "../types/routes.type";
 import { BottomCart } from "../components/BottomCart";
 import { Button, Divider } from "native-base";
+import { useAuth } from "../providers/AuthContext";
+import { UserType } from "../types/user.type";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MainMenu">;
 
 export const MainMenu = ({ navigation }: Props) => {
+  const { setUser } = useAuth();
+
   const handleLogout = () => {
-    navigation.reset({
-      routes: [{ name: "Login" }],
-    });
+    setUser({} as UserType);
   };
 
   return (

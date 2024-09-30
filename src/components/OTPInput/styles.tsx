@@ -19,13 +19,13 @@ export const TextInputHidden = styled(TextInput)`
   width: 100%;
 `;
 
-export const gap = 5;
+export const gap = 2;
 
 export const SplitOTPBoxesContainer = styled.Pressable`
   width: 100%;
   height: 50px;
-  padding-left: ${gap / -2}px;
-  padding-right: ${gap / -2}px;
+  padding-left: ${gap}px;
+  padding-right: ${gap}px;
   flex-direction: row;
   justify-content: center;
 `;

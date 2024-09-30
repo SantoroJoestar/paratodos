@@ -8,8 +8,9 @@ import { CartType } from "../types/cart.type";
 import { GAMES } from "../constants/GAMES";
 import { calculateAmountGame } from "./calculateAmountGame";
 import { numbersSelectedFormated } from "./numbersSelectedFormated";
+import { UserType } from "../types/user.type";
 
-export const print = async (cart: CartType) => {
+export const print = async (cart: CartType, cambista: UserType) => {
   try {
     await SunmiPrinterLibrary.prepare();
 
@@ -21,11 +22,11 @@ export const print = async (cart: CartType) => {
     Pule: ${cart.pule}
     Data da Aposta: ${format(cart.dateBet, "dd/MM/yyyy")}
     Extração: ${cart.time} HRS
-    Terminal: 000001
-    Cambista: TESTE
-    - - - - - - - - - - - - - - - - - - - -
-                    APOSTAS
-    - - - - - - - - - - - - - - - - - - - -\n`;
+    Terminal: 00001
+    Cambista: ${cambista.name}
+    ---------------------------
+              APOSTAS
+    ---------------------------\n`;
 
     // Dinamicamente gerar os jogos
     const jogos = cart.games
@@ -50,11 +51,12 @@ export const print = async (cart: CartType) => {
 
     // Rodapé fixo
     const footer = `
-    - - - - - - - - - - - - - - -
+    ---------------------------
     Total: ${formatCurrency(Number(calculateAmountGame(cart.games)))}
-    - - - - - - - - - - - - - - - - -
+    ---------------------------
     Reclamações: 7 dia(s)
-    - - - - - - - - - - - - - - - - -\n`;
+    ---------------------------
+    Repetir Pule:\n`;
 
     // Conteúdo completo
     const content = header + jogos + footer;
@@ -62,7 +64,8 @@ export const print = async (cart: CartType) => {
     await SunmiPrinterLibrary.printText(content);
 
     const qrCodeContent = cart.pule;
-    await SunmiPrinterLibrary.printQRCode(qrCodeContent, 8, "middle");
+
+    await SunmiPrinterLibrary.printQRCode(qrCodeContent, 10, "middle");
 
     Alert.alert("Apostas confirmadas! Impressão realizada com sucesso");
   } catch (error: any) {

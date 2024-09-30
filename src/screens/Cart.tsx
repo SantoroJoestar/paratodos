@@ -24,7 +24,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
 export const Cart = ({ route, navigation }: Props) => {
   const { cart, newCart, removeFromCart } = useCart();
-  const { setShowChave } = useSettings();
+  const { setShowChave, setChaveValendo } = useSettings();
 
   const confirmBets = async () => {
     // Verificar se há pelo menos uma aposta selecionada
@@ -43,6 +43,7 @@ export const Cart = ({ route, navigation }: Props) => {
   useEffect(() => {
     if (cart.games.length === 0) {
       setShowChave(false);
+      setChaveValendo(false);
       navigation.replace("MenuGames");
     }
   }, [cart.games]);

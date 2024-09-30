@@ -1,33 +1,75 @@
-/* eslint-disable prettier/prettier */
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
+import { Box, Button, useToast } from "native-base";
 import { RootStackParamList } from "../types/routes.type";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
-import { print } from "../utils/print";
-import { Button } from "native-base";
+import { login } from "../services/user";
+import { useAuth } from "../providers/AuthContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
 export const Login = ({ navigation }: Props) => {
-  const navigateToMainMenu = () => {
-    navigation.navigate("MainMenu"); // Redireciona para MainMenuScreen
+  const toast = useToast();
+  const { setUser } = useAuth();
+  const [form, setForm] = useState({
+    login: "",
+    password: "",
+  });
+
+  const handleLogin = async () => {
+    try {
+      const user = await login(form);
+      setUser(user);
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="emerald.500" px="4" py="2" rounded="sm" mb={5}>
+              <Text
+                style={{ fontSize: 20, color: "white", fontWeight: "bold" }}
+              >
+                Login feito com sucesso!
+              </Text>
+            </Box>
+          );
+        },
+      });
+    } catch (error: unknown) {
+      toast.show({
+        render: () => {
+          return (
+            <Box bg="red.500" px="4" py="2" rounded="sm" mb={5}>
+              <Text
+                style={{ fontSize: 20, color: "white", fontWeight: "bold" }}
+              >
+                {(error as Error)?.message || ""}
+              </Text>
+            </Box>
+          );
+        },
+      });
+    }
   };
 
   return (
-    <>
-      <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+    >
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <Image
-          source={require("../media/logoHeaderFooter.jpg")} // Caminho para a imagem
+          source={require("../media/logoHeaderFooter.jpg")}
           style={styles.logo}
         />
-        <Text style={styles.title}>Login</Text>
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Usuário</Text>
@@ -37,6 +79,8 @@ export const Login = ({ navigation }: Props) => {
               placeholderTextColor="#ccc"
               autoCapitalize="none"
               autoCorrect={false}
+              value={form.login}
+              onChangeText={(text) => setForm({ ...form, login: text })}
             />
           </View>
           <View style={styles.inputContainer}>
@@ -45,17 +89,23 @@ export const Login = ({ navigation }: Props) => {
               style={styles.input}
               placeholder="Digite sua senha"
               placeholderTextColor="#ccc"
-              secureTextEntry
+              // secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              value={form.password}
+              onChangeText={(text) => setForm({ ...form, password: text })}
             />
           </View>
-          <Button bg={"yellow.600"} onPress={navigateToMainMenu}>
+          <Button
+            bg={"yellow.600"}
+            onPress={handleLogin}
+            disabled={form.login.trim() === "" || form.password.trim() === ""}
+          >
             Entrar
           </Button>
         </View>
-      </View>
-    </>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -63,22 +113,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f0f0f5",
-    justifyContent: "flex-start", // Alinhar itens ao topo
-    // padding: 16,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: "flex-start", // Alinhar os itens ao topo
+    // paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   logo: {
-    width: "100%", // Largura desejada da imagem
-    height: "30.1%", // Altura desejada da imagem
-    resizeMode: "contain", // Modo de redimensionamento da imagem
-    alignSelf: "center", // Alinhamento centralizado
-    marginBottom: 24, // Espaço abaixo da imagem
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+    width: "100%",
+    height: 202,
+    resizeMode: "contain",
+    alignSelf: "center",
     marginBottom: 24,
-    textAlign: "center",
-    color: "blue",
   },
   form: {
     backgroundColor: "#ffffff",
@@ -106,28 +153,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 4,
     fontSize: 16,
-  },
-  actionButton: {
-    backgroundColor: "#6c63ff",
-    paddingVertical: 14,
-    borderRadius: 5,
-    alignItems: "center",
-    marginTop: 12,
-  },
-  actionButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
-  footer: {
-    padding: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff", // Adiciona fundo branco para melhor visibilidade
-  },
-  footerText: {
-    fontSize: 12,
-    color: "#000", // Texto preto
   },
 });

@@ -23,6 +23,7 @@ import { print } from "../utils/print";
 import { GAMES } from "../constants/GAMES";
 import { formatCurrency } from "../utils/formatCurrency";
 import { calculateAmountGame } from "../utils/calculateAmountGame";
+import { useAuth } from "../providers/AuthContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
@@ -34,6 +35,7 @@ const HourTimesInitial = {
 
 export const ConfirmGame = ({ navigation }: Props) => {
   const { cart, newCart, setCart } = useCart();
+  const { user } = useAuth();
 
   const dateNow = new Date();
 
@@ -69,13 +71,23 @@ export const ConfirmGame = ({ navigation }: Props) => {
       return;
     }
 
-    await print(cart);
+    await print(cart, user);
 
     newCart();
     // Aqui você pode adicionar a lógica para confirmar as apostas
     navigation.navigate("MenuGames");
     // Navegar para a próxima tela ou realizar outras ações necessárias
   };
+
+  const timesChoose = Object.keys(selectedTimes)
+    .sort((a, b) => (Number(a) < Number(b) ? -1 : 1))
+    .filter((time) => {
+      const selectedDateTime = new Date(date); // Clona a data selecionada
+
+      selectedDateTime.setHours(Number(time), 0, 0, 0); // Define a hora com base no botão
+
+      return selectedDateTime > dateNow; // Filtra se a hora do botão for no futuro
+    });
 
   return (
     <View style={styles.scrollContainer}>
@@ -94,29 +106,31 @@ export const ConfirmGame = ({ navigation }: Props) => {
           />
         )}
         <View style={localStyles.timeContainer}>
-          {Object.keys(selectedTimes)
-            .sort((a, b) => (Number(a) < Number(b) ? -1 : 1))
-            .filter((time) => {
-              const selectedDateTime = new Date(date); // Clona a data selecionada
-
-              selectedDateTime.setHours(Number(time), 0, 0, 0); // Define a hora com base no botão
-
-              return selectedDateTime > dateNow; // Filtra se a hora do botão for no futuro
-            })
-            .map((time) => (
-              <Button
-                key={time}
-                bg={
-                  selectedTimes?.[time as keyof typeof selectedTimes]
-                    ? "blue.700"
-                    : "gray.400"
-                }
-                onPress={() => toggleTime(time as keyof typeof selectedTimes)}
-              >
-                <Text style={localStyles.timeButtonText}>{time}h</Text>
-              </Button>
-            ))}
+          {timesChoose.map((time) => (
+            <Button
+              key={time}
+              bg={
+                selectedTimes?.[time as keyof typeof selectedTimes]
+                  ? "blue.700"
+                  : "gray.400"
+              }
+              onPress={() => toggleTime(time as keyof typeof selectedTimes)}
+            >
+              <Text style={localStyles.timeButtonText}>{time}h</Text>
+            </Button>
+          ))}
         </View>
+        {timesChoose.length === 0 && (
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
+            Nenhum horário disponível para esta data
+          </Text>
+        )}
         <View style={localStyles.summaryContainer}>
           <Text style={localStyles.summaryTitle}>Apostas:</Text>
 
@@ -222,6 +236,7 @@ const localStyles = StyleSheet.create({
   betSummary: {
     marginBottom: 10,
     padding: 10,
+    paddingBottom: 0,
     borderRadius: 10,
     backgroundColor: "white",
     width: "100%",
