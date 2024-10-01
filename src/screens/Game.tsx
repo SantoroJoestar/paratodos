@@ -16,6 +16,7 @@ import { generatePule } from "../utils/generatePule";
 import { formatarNumeros } from "../utils/generateChaves";
 import { useSettings } from "../providers/SettingsContext";
 import { RootStackParamList } from "../types/routes.type";
+import { getAllCombinations } from "../utils/getAllCombinations";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Game">;
 
@@ -91,7 +92,14 @@ export const Game = ({ navigation, route }: Props) => {
 
   useEffect(() => {
     if (number.length === TYPE_GAME.format.length && validateCode(number)) {
-      addNumber(number);
+      if (TYPE_GAME.id === "milhar") {
+        const permutas = getAllCombinations(number);
+        for (const perm of permutas) {
+          if (!currentGame.numbers.includes(perm)) addNumber(perm);
+        }
+      } else {
+        addNumber(number);
+      }
     }
   }, [number]);
 
@@ -114,15 +122,13 @@ export const Game = ({ navigation, route }: Props) => {
     handleNext();
   };
 
-  console.log("currentGame.numbers: ", currentGame.numbers);
-
   useEffect(() => {
     const gerarNumeros = () => {
       const newNumbers: string[] = [];
 
       cart.games.forEach((game) => {
         game.numbers.forEach((number) => {
-          if (TYPE_GAME.id === "Dezena") {
+          if (TYPE_GAME.id === "dezena") {
             const nums = number.split("-");
 
             for (const num of nums) {

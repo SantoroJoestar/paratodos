@@ -5,7 +5,7 @@ import { styles } from "../styles"; // Importe os estilos comuns
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
 import { BottomCart } from "../components/BottomCart";
-import { Button, Divider } from "native-base";
+import { Button, Divider, ScrollView } from "native-base";
 import { useAuth } from "../providers/AuthContext";
 import { UserType } from "../types/user.type";
 
@@ -20,7 +20,7 @@ export const MainMenu = ({ navigation }: Props) => {
 
   return (
     <BottomCart navigation={navigation}>
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Button
           bg={"yellow.600"}
           onPress={() => navigation.navigate("MenuGames")}
@@ -74,7 +74,7 @@ export const MainMenu = ({ navigation }: Props) => {
         <Button bg={"red.500"} onPress={handleLogout}>
           <Text style={localStyles.menuButtonText}>SAIR</Text>
         </Button>
-      </View>
+      </ScrollView>
     </BottomCart>
   );
 };

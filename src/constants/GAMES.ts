@@ -1,98 +1,97 @@
-export type TypeGames = {
-  [id: string]: {
-    id: string;
-    label: string;
-    format: string;
-    markAll?: boolean;
-    max?: number;
-  };
-};
-
-export const GAMES: TypeGames = {
-  /**
-   * @description máximo de 4
-   *
-   * @example 1000
-   * @example 1234
-   * @example 2002
-   */
-  "": {
-    id: "",
-    label: "",
-    format: "",
-  },
-  Milhar: {
-    id: "Milhar",
+export const GAMES = {
+  milhar: {
+    id: "milhar",
     label: "Milhar",
     format: "0000",
+    markAll: false,
+    max: 0,
   },
-  Centena: {
-    id: "Centena",
+  centena: {
+    id: "centena",
     label: "Centena",
     format: "000",
+    markAll: false,
+    max: 0,
   },
-  MilharCentena: {
-    id: "MilharCentena",
+  milhar_centena: {
+    id: "milhar_centena",
     label: "Milhar Centena",
     format: "0000",
+    markAll: false,
+    max: 0,
   },
-  MilharInvertida: {
-    id: "MilharInvertida",
+  milhar_invertida: {
+    id: "milhar_invertida",
     label: "Milhar Invertida",
     format: "0000",
+    markAll: false,
+    max: 0,
   },
-  CentenaInvertida: {
-    id: "CentenaInvertida",
+  centena_invertida: {
+    id: "centena_invertida",
     label: "Centena Invertida",
     format: "000",
+    markAll: false,
+    max: 0,
   },
-  Dezena: {
-    id: "Dezena",
+  dezena: {
+    id: "dezena",
     label: "Dezena",
     format: "00",
+    markAll: false,
+    max: 0,
   },
-  DuqueDeDezena: {
-    id: "DuqueDeDezena",
+  duque_dezena: {
+    id: "duque_dezena",
     label: "Duque de Dezena",
     format: "00-00",
-    markAll: true
+    markAll: true,
+    max: 0
   },
-  TernoDeDezena: {
-    id: "TernoDeDezena",
+  terno_de_dezena: {
+    id: "terno_de_dezena",
     label: "Terno de Dezena",
     format: "00-00-00",
-    markAll: true
+    markAll: true,
+    max: 0
   },
-  MilharDezena: {
-    id: "MilharDezena",
+  milhar_dezena: {
+    id: "milhar_dezena",
     label: "Milhar e Dezena",
     format: "0000",
+    markAll: false,
+    max: 0,
   },
-  MilharCentenaDezena: {
-    id: "MilharCentenaDezena",
+  milhar_centena_dezena: {
+    id: "milhar_centena_dezena",
     label: "Milhar, Centena e Dezena",
     format: "0000",
+    markAll: false,
+    max: 0,
   },
-  CentenaDezena: {
-    id: "CentenaDezena",
+  centena_dezena: {
+    id: "centena_dezena",
     label: "Centena Dezena",
     format: "000",
+    markAll: false,
+    max: 0,
   },
-  Grupo: {
-    id: "Grupo",
+  grupo: {
+    id: "grupo",
     label: "Grupo",
     max: 25, // 0 a 25
     format: "00",
+    markAll: false,
   },
-  DuqueDeGrupo: {
-    id: "DuqueDeGrupo",
+  duque_de_grupo: {
+    id: "duque_de_grupo",
     label: "Duque de Grupo",
     max: 25, // (0-25)-(0-25)
     format: "00-00",
     markAll: true
   },
-  TernoDeGrupo: {
-    id: "TernoDeGrupo",
+  terno_de_grupo: {
+    id: "terno_de_grupo",
     label: "Terno de Grupo",
     max: 25, // (0-25)-(0-25)-(0-25)
     format: "00-00-00",

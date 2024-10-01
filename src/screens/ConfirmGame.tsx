@@ -1,21 +1,21 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-  Alert,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { styles } from "../styles"; // Importe os estilos comuns
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
 import { MaskedText } from "react-native-mask-text";
 import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
-import { Button } from "native-base";
-import { format, formatDistance, sub } from "date-fns";
+import {
+  Actionsheet,
+  Button,
+  Heading,
+  HStack,
+  Spinner,
+  useDisclose,
+} from "native-base";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useCart } from "../providers/CartContext";
 
@@ -24,6 +24,9 @@ import { GAMES } from "../constants/GAMES";
 import { formatCurrency } from "../utils/formatCurrency";
 import { calculateAmountGame } from "../utils/calculateAmountGame";
 import { useAuth } from "../providers/AuthContext";
+import { getAllCombinations } from "../utils/getAllCombinations";
+import { api } from "../services/api";
+import { clone } from "../utils/clone";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
@@ -42,6 +45,8 @@ export const ConfirmGame = ({ navigation }: Props) => {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTimes, setSelectedTimes] = useState(HourTimesInitial);
+
+  const { isOpen, onOpen, onClose } = useDisclose();
 
   const onChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate || date;
@@ -71,12 +76,71 @@ export const ConfirmGame = ({ navigation }: Props) => {
       return;
     }
 
-    await print(cart, user);
+    if (!user) {
+      Alert.alert("Erro", "Cambista nao informado!");
+      return;
+    }
 
-    newCart();
-    // Aqui você pode adicionar a lógica para confirmar as apostas
-    navigation.navigate("MenuGames");
-    // Navegar para a próxima tela ou realizar outras ações necessárias
+    let cartObj = clone(cart);
+
+    for (let index = 0; index < cartObj.games.length; index++) {
+      let game = cartObj.games[index];
+
+      if (game._id === "milhar_invertida" || game._id === "centena_invertida") {
+        const nums = game.numbers;
+        const result = [];
+
+        for (const num of nums) {
+          const n = getAllCombinations(num);
+          result.push(...n);
+        }
+
+        game = {
+          ...game,
+          numbers: clone(result),
+        };
+
+        cartObj.games[index] = game;
+      }
+    }
+
+    const gamePost = {
+      game: {
+        pule: cartObj.pule,
+        gameValues: cartObj.games.map((game) => ({
+          gameName: game._id,
+          numbers: game.numbers,
+          prizes: game.bets.map((prize) => ({
+            prizesValues: prize.prizes,
+            bet: prize.valueBet,
+          })),
+        })),
+        dateBet: cartObj.dateBet,
+        dateCreated: cartObj.dateCreated,
+        timeBet: cartObj.time,
+      },
+    };
+
+    onOpen();
+
+    const game = await api.post("/gameRegister", gamePost);
+
+    console.log("data: ", game?.data);
+
+    if (game?.data?.games?._id) {
+      await print(cart, user);
+    } else {
+      Alert.alert("Erro", "Erro ao fazer aposta!");
+      onClose();
+      return;
+    }
+
+    onClose();
+
+    // newCart();
+    // // Aqui você pode adicionar a lógica para confirmar as apostas
+    // navigation.navigate("MenuGames");
+    // // Navegar para a próxima tela ou realizar outras ações necessárias
   };
 
   const timesChoose = Object.keys(selectedTimes)
@@ -91,6 +155,14 @@ export const ConfirmGame = ({ navigation }: Props) => {
 
   return (
     <View style={styles.scrollContainer}>
+      <Actionsheet isOpen={isOpen} hideDragIndicator>
+        <Actionsheet.Content>
+          <HStack space={2} py={10} justifyContent="center">
+            <Spinner size={"lg"} />
+            <Heading fontSize="2xl">Carregando...</Heading>
+          </HStack>
+        </Actionsheet.Content>
+      </Actionsheet>
       <View style={styles.container}>
         <Button bg={"blue.700"} onPress={() => setShowDatePicker(true)}>
           {format(date, "EEEE, dd 'de' MMM 'de' yyyy", { locale: ptBR })}

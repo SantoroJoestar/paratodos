@@ -1,6 +1,8 @@
 import { UserModel } from "../models/UserModel";
 import { UserType } from "../types/user.type";
-import { api } from "./api";
+import { api, handleApiError } from "./api";
+
+const USER_NOT_FOUND_MESSAGE = "Usuário e/ou senha incorretos!";
 
 export const login = async ({
   login,
@@ -10,17 +12,16 @@ export const login = async ({
   password: string;
 }): Promise<UserType> => {
   try {
-    const { user } = await api
-      .post("/authenticate", {
-        login,
-        password,
-      })
-      .then((res) => res.data);
+    const response = await api.post("/authenticate", { login, password });
 
-    if (!user) throw new Error("Usuário e/ou senha incorretos!");
+    const user = response?.data?.user;
+
+    if (!user) {
+      throw new Error(USER_NOT_FOUND_MESSAGE);
+    }
 
     return UserModel(user);
   } catch (error: unknown) {
-    throw new Error((error as Error).message);
+    return handleApiError(error);
   }
 };
