@@ -1,11 +1,17 @@
 /* eslint-disable prettier/prettier */
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Alert,
+  ListRenderItem,
+} from "react-native";
 
 import { styles } from "../styles"; // Importe os estilos comuns
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
-import { MaskedText } from "react-native-mask-text";
 
 import { Button } from "native-base";
 
@@ -17,13 +23,15 @@ import { calculateAmountGame } from "../utils/calculateAmountGame";
 import { print } from "../utils/print";
 import { generatePule } from "../utils/generatePule";
 import { GAMES } from "../constants/GAMES";
-import { formatCurrency } from "../utils/formatCurrency";
+
 import { useSettings } from "../providers/SettingsContext";
+import { GameType } from "../types/game.type";
+import { formatterBRL } from "../utils/formatCurrency";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
 export const Cart = ({ route, navigation }: Props) => {
-  const { cart, newCart, removeFromCart } = useCart();
+  const { cart, removeFromCart } = useCart();
   const { setShowChave, setChaveValendo } = useSettings();
 
   const confirmBets = async () => {
@@ -48,77 +56,57 @@ export const Cart = ({ route, navigation }: Props) => {
     }
   }, [cart.games]);
 
+  const showItem: ListRenderItem<GameType> = ({ item, index }) => (
+    <View style={localStyles.betSummary}>
+      <Text style={localStyles.summaryText}>{GAMES[item._id].label}</Text>
+
+      <Text style={localStyles.summaryText}>{item.numbers.join(", ")}</Text>
+
+      <Text style={localStyles.summaryText}>
+        Apostas:{" "}
+        {item.bets.map(
+          (bet) =>
+            formatterBRL(Number(bet.valueBet)) +
+            " (Premios: " +
+            numbersSelectedFormated(bet.prizes) +
+            "), " +
+            "\n"
+        )}
+      </Text>
+
+      <Text style={localStyles.summaryText}>
+        Valor: {formatterBRL(calculateAmount(item.bets))}
+      </Text>
+
+      <Button bg={"red.500"} mt={2} onPress={() => removeFromCart(index)}>
+        Remover
+      </Button>
+    </View>
+  );
+
   return (
     <View style={styles.scrollContainer}>
       <View style={styles.container}>
-        <Text style={{ fontSize: 20, fontWeight: "600", marginBottom: 20 }}>
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "600",
+            marginBottom: 20,
+            color: "black",
+          }}
+        >
           Pule: {cart.pule}
         </Text>
         <FlatList
           style={{ flex: 1 }}
           data={cart.games}
-          renderItem={({ item, index }) => (
-            <View style={localStyles.betSummary}>
-              <Text style={localStyles.summaryText}>
-                {GAMES[item._id].label}
-              </Text>
-
-              <Text style={localStyles.summaryText}>
-                {item.numbers.join(", ")}
-              </Text>
-
-              <Text style={localStyles.summaryText}>
-                Apostas:{" "}
-                {item.bets.map(
-                  (bet) =>
-                    formatCurrency(Number(bet.valueBet)) +
-                    " (Premios: " +
-                    numbersSelectedFormated(bet.prizes) +
-                    "), " +
-                    "\n"
-                )}
-              </Text>
-
-              <Text style={localStyles.summaryText}>
-                Valor:{" "}
-                <MaskedText
-                  type="currency"
-                  options={{
-                    prefix: "R$ ",
-                    decimalSeparator: ",",
-                    groupSeparator: ".",
-                    precision: 2,
-                  }}
-                >
-                  {calculateAmount(item.bets)}
-                </MaskedText>
-              </Text>
-
-              <Button
-                bg={"red.500"}
-                mt={2}
-                onPress={() => removeFromCart(index)}
-              >
-                Remover
-              </Button>
-            </View>
-          )}
+          renderItem={showItem}
           keyExtractor={(item, index) => index.toString()}
         />
 
         <Text style={localStyles.totalText}>
-          Valor Total das Apostas:{" "}
-          <MaskedText
-            type="currency"
-            options={{
-              prefix: "R$ ",
-              decimalSeparator: ",",
-              groupSeparator: ".",
-              precision: 2,
-            }}
-          >
-            {calculateAmountGame(cart.games)}
-          </MaskedText>
+          Valor Total das Apostas:
+          {formatterBRL(calculateAmountGame(cart.games))}
         </Text>
       </View>
       <Button
@@ -192,6 +180,7 @@ const localStyles = StyleSheet.create({
   summaryText: {
     fontSize: 17,
     margin: 1,
+    color: "black",
   },
   totalText: {
     marginTop: 7,

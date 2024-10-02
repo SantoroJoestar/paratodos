@@ -5,8 +5,8 @@ export const calculateAmountGame = (games: GameType[]) => {
   let total = 0;
   games.forEach((game) => {
     game.bets.forEach((bet) => {
-      total += parseFloat(bet.valueBet);
+      total += bet.valueBet;
     });
   });
-  return total.toFixed(2);
+  return total;
 };

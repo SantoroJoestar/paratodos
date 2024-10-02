@@ -2,7 +2,7 @@ import { Alert } from "react-native";
 // @ts-ignore
 import * as SunmiPrinterLibrary from "@mitsuharu/react-native-sunmi-printer-library";
 
-import { formatCurrency } from "./formatCurrency";
+import { formatterBRL } from "./formatCurrency";
 import { format } from "date-fns";
 import { CartType } from "../types/cart.type";
 import { GAMES } from "../constants/GAMES";
@@ -15,18 +15,18 @@ export const print = async (cart: CartType, cambista: UserType) => {
     await SunmiPrinterLibrary.prepare();
 
     const header = `
-    Via do Cliente
+Via do Cliente
 
-    Data: ${format(cart.dateCreated, "dd/MM/yyyy HH:mm:ss")}
+Data: ${format(cart.dateCreated, "dd/MM/yyyy HH:mm:ss")}
 
-    Pule: ${cart.pule}
-    Data da Aposta: ${format(cart.dateBet, "dd/MM/yyyy")}
-    Extração: ${cart.time} HRS
-    Terminal: 00001
-    Cambista: ${cambista.name}
-    ---------------------------
+Pule: ${cart.pule}
+Data da Aposta: ${format(cart.dateBet, "dd/MM/yyyy")}
+Extração: ${cart.time} HRS
+Terminal: 00001
+Cambista: ${cambista.name}
+----------------------------------
               APOSTAS
-    ---------------------------\n`;
+----------------------------------\n`;
 
     // Dinamicamente gerar os jogos
     const jogos = cart.games
@@ -37,7 +37,7 @@ export const print = async (cart: CartType, cambista: UserType) => {
             (bet) =>
               `${GAMES[game._id].label[0]} ${numbersSelectedFormated(
                 bet.prizes
-              )} ---------  ${formatCurrency(Number(bet.valueBet))}\n`
+              )} ---------  ${formatterBRL(Number(bet.valueBet))}\n`
           )
           .join("\n\n");
 
@@ -51,12 +51,12 @@ export const print = async (cart: CartType, cambista: UserType) => {
 
     // Rodapé fixo
     const footer = `
-    ---------------------------
-    Total: ${formatCurrency(Number(calculateAmountGame(cart.games)))}
-    ---------------------------
-    Reclamações: 7 dia(s)
-    ---------------------------
-    Repetir Pule:\n`;
+--------------------------------
+Total: ${formatterBRL(calculateAmountGame(cart.games))}
+--------------------------------
+Reclamações: 7 dia(s)
+---------------------------
+Repetir Pule:\n`;
 
     // Conteúdo completo
     const content = header + jogos + footer;

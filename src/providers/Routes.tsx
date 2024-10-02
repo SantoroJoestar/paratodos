@@ -2,7 +2,10 @@
 import "react-native-gesture-handler";
 import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  CardStyleInterpolators,
+  createStackNavigator,
+} from "@react-navigation/stack";
 import { RootStackParamList } from "../types/routes.type";
 
 // Pages
@@ -10,6 +13,7 @@ import { Login } from "../screens/Login";
 import { MainMenu } from "../screens/MainMenu";
 import { Profile } from "../screens/Profile";
 import { Game } from "../screens/Game";
+import { GameWithInput } from "../screens/GameWithInput";
 import { MenuGames } from "../screens/MenuGames";
 import { Prizes } from "../screens/Prizes";
 import { ConfirmGame } from "../screens/ConfirmGame";
@@ -58,6 +62,8 @@ export const Routes = () => {
             fontWeight: 500,
           },
           animationEnabled: false,
+          gestureDirection: "horizontal", // Define a direção do gesto como horizontal
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, // Animação padrão de transição horizontal
         }}
       >
         {!authenticated && (
@@ -92,9 +98,13 @@ export const Routes = () => {
             <Stack.Screen
               name="Game"
               options={({ route }) => ({
-                headerTitle: GAMES[route.params?.type].label || "Jogo",
+                headerTitle:
+                  GAMES[route.params?.type].label +
+                    " (" +
+                    route.params?.pule +
+                    ")" || "Jogo",
               })}
-              component={Game}
+              component={GameWithInput}
             />
             <Stack.Screen
               name="Prizes"

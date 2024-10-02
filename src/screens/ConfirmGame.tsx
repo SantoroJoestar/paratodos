@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { View, Text, StyleSheet, FlatList, Alert } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { styles } from "../styles"; // Importe os estilos comuns
+import { styles } from "../styles";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
-import { MaskedText } from "react-native-mask-text";
+
 import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
 import {
   Actionsheet,
@@ -18,140 +18,149 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useCart } from "../providers/CartContext";
-
 import { print } from "../utils/print";
 import { GAMES } from "../constants/GAMES";
-import { formatCurrency } from "../utils/formatCurrency";
 import { calculateAmountGame } from "../utils/calculateAmountGame";
 import { useAuth } from "../providers/AuthContext";
 import { getAllCombinations } from "../utils/getAllCombinations";
 import { api } from "../services/api";
 import { clone } from "../utils/clone";
+import { formatterBRL } from "../utils/formatCurrency";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
-const HourTimesInitial = {
-  "13": false,
-  "16": false,
-  "19": false,
-};
-
 export const ConfirmGame = ({ navigation }: Props) => {
+  const HourTimesInitial = useMemo(
+    () => ({
+      "13": false,
+      "16": false,
+      "19": false,
+    }),
+    []
+  );
+
   const { cart, newCart, setCart } = useCart();
   const { user } = useAuth();
 
-  const dateNow = new Date();
+  const dateNow = useMemo(() => new Date(), []);
 
+  const [loading, setLoading] = useState(false);
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTimes, setSelectedTimes] = useState(HourTimesInitial);
 
   const { isOpen, onOpen, onClose } = useDisclose();
 
-  const onChange = (event: any, selectedDate: any) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(false);
-    setDate(currentDate);
-    setCart((prev) => ({ ...prev, dateBet: currentDate }));
-  };
+  const onChange = useCallback(
+    (event: any, selectedDate: any) => {
+      const currentDate = selectedDate || date;
+      setShowDatePicker(false);
+      setDate(currentDate);
+      setCart((prev) => ({ ...prev, dateBet: currentDate }));
+    },
+    [date, setCart]
+  );
 
-  // Lógica para permitir selecionar apenas um horário
-  const toggleTime = (time: keyof typeof selectedTimes) => {
-    // Atualizar o estado, desmarcando todos os outros tempos e marcando apenas o selecionado
-    const updatedTimes = Object.keys(selectedTimes).reduce((acc, cur) => {
-      acc[cur as keyof typeof selectedTimes] = cur === time;
-      return acc;
-    }, {} as typeof selectedTimes);
+  const toggleTime = useCallback(
+    (time: keyof typeof selectedTimes) => {
+      const updatedTimes = Object.keys(selectedTimes).reduce((acc, cur) => {
+        acc[cur as keyof typeof selectedTimes] = cur === time;
+        return acc;
+      }, {} as typeof selectedTimes);
 
-    setSelectedTimes(updatedTimes);
-    setCart((prev) => ({
-      ...prev,
-      time: Object.entries(updatedTimes)?.find((time) => time[1])?.[0] || "",
-    }));
-  };
+      setSelectedTimes(updatedTimes);
+      setCart((prev) => ({
+        ...prev,
+        time: Object.entries(updatedTimes)?.find((time) => time[1])?.[0] || "",
+      }));
+    },
+    [setCart, selectedTimes]
+  );
 
-  const confirmBets = async () => {
+  const confirmBets = useCallback(async () => {
     if (cart.time === "") {
-      Alert.alert("Erro", "Você deve fazer escolher um horário.");
+      Alert.alert("Erro", "Você deve escolher um horário.");
       return;
     }
 
     if (!user) {
-      Alert.alert("Erro", "Cambista nao informado!");
+      Alert.alert("Erro", "Cambista não informado!");
       return;
     }
+
+    setLoading(true);
 
     let cartObj = clone(cart);
 
-    for (let index = 0; index < cartObj.games.length; index++) {
-      let game = cartObj.games[index];
+    try {
+      for (let index = 0; index < cartObj.games.length; index++) {
+        let game = cartObj.games[index];
 
-      if (game._id === "milhar_invertida" || game._id === "centena_invertida") {
-        const nums = game.numbers;
-        const result = [];
+        if (
+          game._id === "milhar_invertida" ||
+          game._id === "centena_invertida"
+        ) {
+          const nums = game.numbers;
+          const result = [];
 
-        for (const num of nums) {
-          const n = getAllCombinations(num);
-          result.push(...n);
+          for (const num of nums) {
+            const n = getAllCombinations(num);
+            result.push(...n);
+          }
+
+          game = { ...game, numbers: clone(result) };
+          cartObj.games[index] = game;
         }
-
-        game = {
-          ...game,
-          numbers: clone(result),
-        };
-
-        cartObj.games[index] = game;
       }
-    }
 
-    const gamePost = {
-      game: {
-        pule: cartObj.pule,
-        gameValues: cartObj.games.map((game) => ({
-          gameName: game._id,
-          numbers: game.numbers,
-          prizes: game.bets.map((prize) => ({
-            prizesValues: prize.prizes,
-            bet: prize.valueBet,
+      const gamePost = {
+        game: {
+          pule: cartObj.pule,
+          gameValues: cartObj.games.map((game) => ({
+            gameName: game._id,
+            numbers: game.numbers,
+            prizes: game.bets.map((prize) => ({
+              prizesValues: prize.prizes,
+              bet: prize.valueBet,
+            })),
           })),
-        })),
-        dateBet: cartObj.dateBet,
-        dateCreated: cartObj.dateCreated,
-        timeBet: cartObj.time,
-      },
-    };
+          dateBet: cartObj.dateBet,
+          dateCreated: cartObj.dateCreated,
+          timeBet: cartObj.time,
+        },
+      };
 
-    onOpen();
+      onOpen();
+      const game = await api.post("/gameRegister", gamePost);
 
-    const game = await api.post("/gameRegister", gamePost);
+      if (game?.data?.games?._id) {
+        await print(cart, user);
+      } else {
+        throw new Error("Erro ao fazer aposta!");
+      }
 
-    console.log("data: ", game?.data);
-
-    if (game?.data?.games?._id) {
-      await print(cart, user);
-    } else {
-      Alert.alert("Erro", "Erro ao fazer aposta!");
+      newCart();
+      navigation.navigate("MenuGames");
+    } catch (error: unknown) {
+      Alert.alert(
+        "Erro",
+        (error as Error)?.message || "Erro ao confirmar as apostas."
+      );
+    } finally {
+      setLoading(false);
       onClose();
-      return;
     }
+  }, [cart, newCart, user, onOpen, onClose, navigation]);
 
-    onClose();
-
-    // newCart();
-    // // Aqui você pode adicionar a lógica para confirmar as apostas
-    // navigation.navigate("MenuGames");
-    // // Navegar para a próxima tela ou realizar outras ações necessárias
-  };
-
-  const timesChoose = Object.keys(selectedTimes)
-    .sort((a, b) => (Number(a) < Number(b) ? -1 : 1))
-    .filter((time) => {
-      const selectedDateTime = new Date(date); // Clona a data selecionada
-
-      selectedDateTime.setHours(Number(time), 0, 0, 0); // Define a hora com base no botão
-
-      return selectedDateTime > dateNow; // Filtra se a hora do botão for no futuro
-    });
+  const timesChoose = useMemo(() => {
+    return Object.keys(selectedTimes)
+      .sort((a, b) => (Number(a) < Number(b) ? -1 : 1))
+      .filter((time) => {
+        const selectedDateTime = new Date(date);
+        selectedDateTime.setHours(Number(time), 0, 0, 0);
+        return selectedDateTime > dateNow;
+      });
+  }, [selectedTimes, date, dateNow]);
 
   return (
     <View style={styles.scrollContainer}>
@@ -193,19 +202,12 @@ export const ConfirmGame = ({ navigation }: Props) => {
           ))}
         </View>
         {timesChoose.length === 0 && (
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "600",
-              textAlign: "center",
-            }}
-          >
+          <Text style={localStyles.noTimeText}>
             Nenhum horário disponível para esta data
           </Text>
         )}
         <View style={localStyles.summaryContainer}>
           <Text style={localStyles.summaryTitle}>Apostas:</Text>
-
           <FlatList
             style={{ flex: 1 }}
             data={cart.games}
@@ -223,8 +225,8 @@ export const ConfirmGame = ({ navigation }: Props) => {
                   Apostas:{" "}
                   {item.bets.map(
                     (bet) =>
-                      formatCurrency(Number(bet.valueBet)) +
-                      " (Premios: " +
+                      formatterBRL(Number(bet.valueBet)) +
+                      " (Prêmios: " +
                       numbersSelectedFormated(bet.prizes) +
                       "), " +
                       "\n"
@@ -235,20 +237,9 @@ export const ConfirmGame = ({ navigation }: Props) => {
             keyExtractor={(item, index) => index.toString()}
           />
 
-          {/* Campo para mostrar o valor total das apostas */}
           <Text style={localStyles.totalText}>
-            Valor Total das Apostas:{" "}
-            <MaskedText
-              type="currency"
-              options={{
-                prefix: "R$ ",
-                decimalSeparator: ",",
-                groupSeparator: ".",
-                precision: 2,
-              }}
-            >
-              {calculateAmountGame(cart.games)}
-            </MaskedText>
+            Valor Total das Apostas:
+            {formatterBRL(calculateAmountGame(cart.games))}
           </Text>
         </View>
         <Button onPress={confirmBets} bg="blue.700">
@@ -288,6 +279,11 @@ const localStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  noTimeText: {
+    fontSize: 20,
+    fontWeight: "600",
+    textAlign: "center",
+  },
   selectedTimeButton: {
     backgroundColor: "#6c63ff",
   },
@@ -316,6 +312,7 @@ const localStyles = StyleSheet.create({
   summaryText: {
     fontSize: 16,
     margin: 2,
+    color: "black",
   },
   totalText: {
     marginTop: 5,

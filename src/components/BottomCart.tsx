@@ -1,10 +1,9 @@
 import { Button, Text, View } from "native-base";
 import React from "react";
 import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
-import { RootStackParamList } from "../types/routes.type";
 import { useCart } from "../providers/CartContext";
 import { calculateAmountGame } from "../utils/calculateAmountGame";
-import { MaskedText } from "react-native-mask-text";
+import { formatterBRL } from "../utils/formatCurrency";
 
 type Props = {
   children: React.ReactNode;
@@ -29,18 +28,7 @@ export const BottomCart = ({ children, navigation }: Props) => {
         >
           <View style={{ flex: 1 }}>
             <Text style={{ fontWeight: 700, fontSize: 18 }}>
-              Total:{" "}
-              <MaskedText
-                type="currency"
-                options={{
-                  prefix: "R$ ",
-                  decimalSeparator: ",",
-                  groupSeparator: ".",
-                  precision: 2,
-                }}
-              >
-                {calculateAmountGame(cart.games)}
-              </MaskedText>
+              Total: {formatterBRL(calculateAmountGame(cart.games))}
             </Text>
             <Text style={{ fontWeight: 500, fontSize: 15 }}>
               {cart.games.length} itens no carrinho

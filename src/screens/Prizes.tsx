@@ -1,33 +1,35 @@
 /* eslint-disable prettier/prettier */
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Text,
   StyleSheet,
   Alert,
   FlatList,
   TextInputProps,
-  Platform,
+  ListRenderItem,
+  TextInputBase,
+  TextInput,
 } from "react-native";
 
 import { styles } from "../styles"; // Import common styles
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
-import { MaskedText, MaskedTextInput } from "react-native-mask-text";
 import { Actionsheet, Button, useDisclose, View } from "native-base";
 
 import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
-import { border } from "native-base/lib/typescript/theme/styled-system";
+
 import { BetType } from "../types/bet.type";
 import { useCart } from "../providers/CartContext";
 import { GAMES } from "../constants/GAMES";
 import { useSettings } from "../providers/SettingsContext";
+import { formatterBRL, parserBRL } from "../utils/formatCurrency";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Prizes">;
 
 export const Prizes = ({ navigation }: Props) => {
   const [selectedPrizes, setSelectedPrizes] = useState<string[]>([]);
 
-  const [betAmount, setBetAmount] = useState("");
+  const [betAmount, setBetAmount] = useState(0);
   const [selectAll, setSelectAll] = useState(true);
 
   const { cart, currentGame, setCurrentGame, setCart } = useCart();
@@ -37,27 +39,32 @@ export const Prizes = ({ navigation }: Props) => {
 
   const { isOpen, onOpen, onClose } = useDisclose();
 
-  const handlePrizeSelection = (prizeNumber: string) => {
-    if (selectedPrizes.includes(prizeNumber)) {
-      setSelectedPrizes(selectedPrizes.filter((item) => item !== prizeNumber));
-    } else {
-      setSelectedPrizes([...selectedPrizes, prizeNumber]);
-    }
-  };
+  const handlePrizeSelection = useCallback(
+    (prizeNumber: string) => {
+      if (selectedPrizes.includes(prizeNumber)) {
+        setSelectedPrizes(
+          selectedPrizes.filter((item) => item !== prizeNumber)
+        );
+      } else {
+        setSelectedPrizes([...selectedPrizes, prizeNumber]);
+      }
+    },
+    [selectedPrizes]
+  );
 
   useEffect(() => {
     onOpen();
   }, []);
 
-  const remove = (index: number) => {
+  const remove = useCallback((index: number) => {
     setSelectedPrizes((prev) => prev.filter((_, i) => i !== index));
     setCurrentGame((prev) => ({
       ...prev,
       bets: prev.bets.filter((_, i) => i !== index),
     }));
-  };
+  }, []);
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (selectedPrizes.length === 0) {
       Alert.alert("Erro", "Selecione pelo menos um prêmio.");
     } else if (!betAmount || !Number(betAmount)) {
@@ -69,12 +76,12 @@ export const Prizes = ({ navigation }: Props) => {
       };
       setCurrentGame((prev) => ({ ...prev, bets: [...prev.bets, newBet] }));
       setSelectedPrizes([]);
-      setBetAmount("");
+      setBetAmount(0);
       onClose();
     }
-  };
+  }, [betAmount, selectedPrizes, currentGame.bets]);
 
-  const handleProceed = () => {
+  const handleProceed = useCallback(() => {
     if (currentGame.bets.length === 0) {
       Alert.alert("Erro", "Faça pelo menos uma aposta antes de prosseguir.");
     } else {
@@ -87,16 +94,43 @@ export const Prizes = ({ navigation }: Props) => {
 
       navigation.navigate("Cart");
     }
-  };
+  }, [currentGame.bets]);
 
   useEffect(() => {
     if (TYPE_GAME.markAll) setSelectedPrizes(["1", "2", "3", "4", "5"]);
   }, [TYPE_GAME]);
 
+  const showItem = useCallback<ListRenderItem<BetType>>(
+    ({ item, index }) => (
+      <View
+        style={{
+          flexDirection: "row",
+          ...localStyles.betItem,
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <Text style={localStyles.betItemText}>
+            Prêmios: {numbersSelectedFormated(item.prizes)}
+          </Text>
+          <Text style={localStyles.betItemText}>
+            Valor: {formatterBRL(item.valueBet)}
+          </Text>
+        </View>
+        <Button
+          onPress={() => remove(index)}
+          style={{ flexShrink: 1, backgroundColor: "red" }}
+        >
+          Remover
+        </Button>
+      </View>
+    ),
+    []
+  );
+
   return (
     <View style={styles.container}>
       <Actionsheet isOpen={isOpen} onClose={onClose}>
-        <Actionsheet.Content minHeight={"xl"}>
+        <Actionsheet.Content minHeight={"2xl"}>
           <View
             style={{ paddingHorizontal: 20, paddingTop: 30, width: "100%" }}
           >
@@ -104,17 +138,10 @@ export const Prizes = ({ navigation }: Props) => {
               Selecione os prêmios desejados:
             </Text>
             <View style={{ paddingVertical: 20 }}>
-              <MaskedTextInput
-                type="currency"
-                options={{
-                  prefix: "R$ ",
-                  decimalSeparator: ",",
-                  groupSeparator: ".",
-                  precision: 2,
-                }}
-                value={betAmount}
-                onChangeText={(text, textRaw) => {
-                  setBetAmount(textRaw ? textRaw : "0");
+              <TextInput
+                value={formatterBRL(betAmount)}
+                onChangeText={(text) => {
+                  setBetAmount(parserBRL(text));
                 }}
                 style={
                   {
@@ -125,6 +152,7 @@ export const Prizes = ({ navigation }: Props) => {
                     borderRadius: 7,
                     paddingHorizontal: 20,
                     paddingVertical: 6,
+                    color: "black",
                   } as TextInputProps["style"]
                 }
                 keyboardType="numeric"
@@ -200,40 +228,7 @@ export const Prizes = ({ navigation }: Props) => {
         <FlatList
           data={currentGame.bets}
           style={{ flex: 1 }}
-          renderItem={({ item, index }) => (
-            <View
-              style={{
-                flexDirection: "row",
-                ...localStyles.betItem,
-              }}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={localStyles.betItemText}>
-                  Prêmios: {numbersSelectedFormated(item.prizes)}
-                </Text>
-                <Text style={localStyles.betItemText}>
-                  Valor:{" "}
-                  <MaskedText
-                    type="currency"
-                    options={{
-                      prefix: "R$ ",
-                      decimalSeparator: ",",
-                      groupSeparator: ".",
-                      precision: 2,
-                    }}
-                  >
-                    {item.valueBet}
-                  </MaskedText>
-                </Text>
-              </View>
-              <Button
-                onPress={() => remove(index)}
-                style={{ flexShrink: 1, backgroundColor: "red" }}
-              >
-                Remover
-              </Button>
-            </View>
-          )}
+          renderItem={showItem}
           keyExtractor={(item, index) => index.toString()}
         />
         <View style={{ flexDirection: "row" }}>
@@ -340,6 +335,7 @@ const localStyles = StyleSheet.create({
   },
   betItemText: {
     fontSize: 16,
+    color: "black",
   },
   scrollContainer: {
     flexGrow: 1,

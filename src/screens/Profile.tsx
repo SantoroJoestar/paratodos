@@ -32,11 +32,11 @@ export const Profile = ({ navigation }: Props) => {
         </TouchableOpacity>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Nome</Text>
-          <Text style={{ fontSize: 16 }}>{user.name}</Text>
+          <Text style={{ fontSize: 16 }}>{user?.name}</Text>
         </View>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Usuário</Text>
-          <Text style={{ fontSize: 16 }}>{user.login}</Text>
+          <Text style={{ fontSize: 16 }}>{user?.login}</Text>
         </View>
         {/* <View style={styles.inputContainer}>
             <Text style={styles.label}>Endereço</Text>

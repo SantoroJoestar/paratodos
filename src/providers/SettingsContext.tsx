@@ -4,6 +4,8 @@ const _controllerSetttings = () => {
   const [chaveValendo, setChaveValendo] = useState(false);
   const [showChave, setShowChave] = useState(false);
 
+  console.log("atualizou settings provider");
+
   return {
     chaveValendo,
     setChaveValendo,

@@ -3,8 +3,11 @@ import { GAMES } from "../constants/GAMES";
 export type RootStackParamList = {
   Game: {
     type: keyof typeof GAMES;
+    pule: string;
   };
-  Prizes: undefined;
+  Prizes: {
+    pule: string;
+  };
   ConfirmGame: undefined;
   Cart: undefined,
   Login: undefined;

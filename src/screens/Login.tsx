@@ -89,7 +89,7 @@ export const Login = ({ navigation }: Props) => {
               style={styles.input}
               placeholder="Digite sua senha"
               placeholderTextColor="#ccc"
-              // secureTextEntry
+              secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
               value={form.password}
@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: "#ccc",
     borderWidth: 1,
+    color: "black",
     paddingHorizontal: 12,
     borderRadius: 4,
     fontSize: 16,

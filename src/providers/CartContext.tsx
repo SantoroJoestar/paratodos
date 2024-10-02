@@ -1,23 +1,26 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import { GameModel } from "../models/GameModel";
 import { GameType } from "../types/game.type";
-
 import { CartType } from "../types/cart.type";
 import { CartModel } from "../models/CartModel";
 
 const _controllerCart = () => {
   const [currentGame, setCurrentGame] = useState<GameType>(GameModel());
-
   const [cart, setCart] = useState<CartType>(CartModel());
 
-  const newCart = () => setCart(CartModel());
+  // Função para resetar o carrinho
+  const newCart = useCallback(() => setCart(CartModel()), []);
 
-  const removeFromCart = (index: number) => {
+  // Função para remover um jogo do carrinho por índice
+  const removeFromCart = useCallback((index: number) => {
     setCart((prev) => ({
       ...prev,
       games: prev.games.filter((_, i) => i !== index),
     }));
-  };
+  }, []);
+
+  // Logging para ver quando o carrinho é atualizado
+  console.log("atualizou cart provider");
 
   return {
     newCart,

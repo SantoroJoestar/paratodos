@@ -1,34 +1,28 @@
 /* eslint-disable prettier/prettier */
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { styles } from "../styles"; // Importe os estilos comuns
+import React, { useCallback } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+
 import { RootStackParamList } from "../types/routes.type";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { GAMES } from "../constants/GAMES";
-import { GameModel } from "../models/GameModel";
-import { useCart } from "../providers/CartContext";
+
 import { BottomCart } from "../components/BottomCart";
 import { Button, HStack, Switch } from "native-base";
 import { useSettings } from "../providers/SettingsContext";
+import { useCart } from "../providers/CartContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MenuGames">;
 
 export const MenuGames = ({ navigation }: Props) => {
-  const { setCurrentGame } = useCart();
   const { chaveValendo, setChaveValendo, showChave } = useSettings();
+  const { cart } = useCart();
 
-  const navigateToGame = (screen: keyof typeof GAMES) => {
-    setCurrentGame(GameModel());
+  const navigateToGame = useCallback((screen: keyof typeof GAMES) => {
     navigation.navigate("Game", {
       type: screen,
+      pule: cart.pule,
     });
-  };
+  }, []);
 
   return (
     <BottomCart navigation={navigation}>
@@ -78,6 +72,7 @@ const localStyles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
+    color: "black",
   },
   gridContainer: {
     flexDirection: "row",

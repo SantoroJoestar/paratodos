@@ -19,6 +19,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
+    color:"black"
   },
   form: {
     backgroundColor: '#ffffff',
