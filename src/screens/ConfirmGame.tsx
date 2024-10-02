@@ -92,7 +92,8 @@ export const ConfirmGame = ({ navigation }: Props) => {
 
         if (
           game._id === "milhar_invertida" ||
-          game._id === "centena_invertida"
+          game._id === "centena_invertida" ||
+          game._id === "milhar_centena_invertida"
         ) {
           const nums = game.numbers;
           const result = [];
