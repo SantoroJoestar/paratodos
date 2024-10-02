@@ -29,16 +29,13 @@ import { formatterBRL } from "../utils/formatCurrency";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
-export const ConfirmGame = ({ navigation }: Props) => {
-  const HourTimesInitial = useMemo(
-    () => ({
-      "13": false,
-      "16": false,
-      "19": false,
-    }),
-    []
-  );
+const HourTimesInitial = {
+  "13": false,
+  "16": false,
+  "19": false,
+};
 
+export const ConfirmGame = ({ navigation }: Props) => {
   const { cart, newCart, setCart } = useCart();
   const { user } = useAuth();
 
@@ -51,15 +48,12 @@ export const ConfirmGame = ({ navigation }: Props) => {
 
   const { isOpen, onOpen, onClose } = useDisclose();
 
-  const onChange = useCallback(
-    (event: any, selectedDate: any) => {
-      const currentDate = selectedDate || date;
-      setShowDatePicker(false);
-      setDate(currentDate);
-      setCart((prev) => ({ ...prev, dateBet: currentDate }));
-    },
-    [date, setCart]
-  );
+  const onChange = (event: any, selectedDate: any) => {
+    const currentDate = selectedDate || date;
+    setShowDatePicker(false);
+    setDate(currentDate);
+    setCart((prev) => ({ ...prev, dateBet: currentDate }));
+  };
 
   const toggleTime = useCallback(
     (time: keyof typeof selectedTimes) => {

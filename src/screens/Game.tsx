@@ -160,8 +160,6 @@ export const Game = ({ navigation, route }: Props) => {
     [deleteNumber]
   );
 
-  console.log("atualizou game");
-
   return (
     <View style={{ flex: 1, padding: 20 }}>
       <OTPInput code={number} format={TYPE_GAME.format} />

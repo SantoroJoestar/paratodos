@@ -27,6 +27,13 @@ export const GAMES = {
     markAll: false,
     max: 0,
   },
+  milhar_centena_invertida: {
+    id: "milhar_centena_invertida",
+    label: "Milhar e Centena Invertidas",
+    format: "0000",
+    markAll: false,
+    max: 0,
+  },
   centena_invertida: {
     id: "centena_invertida",
     label: "Centena Invertida",

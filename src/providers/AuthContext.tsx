@@ -64,8 +64,6 @@ const _controllerAuth = () => {
 
   const authenticated = useMemo(() => Boolean(user?.login), [user]);
 
-  console.log("atualizou auth provider");
-
   return {
     user,
     login,

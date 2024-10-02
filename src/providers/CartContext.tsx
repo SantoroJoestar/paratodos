@@ -19,9 +19,6 @@ const _controllerCart = () => {
     }));
   }, []);
 
-  // Logging para ver quando o carrinho é atualizado
-  console.log("atualizou cart provider");
-
   return {
     newCart,
     cart,

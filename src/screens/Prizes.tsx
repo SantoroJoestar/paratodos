@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Text,
@@ -6,38 +5,33 @@ import {
   Alert,
   FlatList,
   TextInputProps,
-  ListRenderItem,
-  TextInputBase,
   TextInput,
+  ListRenderItem,
 } from "react-native";
-
-import { styles } from "../styles"; // Import common styles
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
-import { Actionsheet, Button, useDisclose, View } from "native-base";
+import { Modal, Button, View, Center } from "native-base";
 
 import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
-
 import { BetType } from "../types/bet.type";
 import { useCart } from "../providers/CartContext";
 import { GAMES } from "../constants/GAMES";
 import { useSettings } from "../providers/SettingsContext";
 import { formatterBRL, parserBRL } from "../utils/formatCurrency";
+import { styles } from "../styles";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Prizes">;
 
 export const Prizes = ({ navigation }: Props) => {
   const [selectedPrizes, setSelectedPrizes] = useState<string[]>([]);
-
   const [betAmount, setBetAmount] = useState(0);
   const [selectAll, setSelectAll] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   const { cart, currentGame, setCurrentGame, setCart } = useCart();
   const { chaveValendo } = useSettings();
 
   const TYPE_GAME = GAMES[currentGame._id];
-
-  const { isOpen, onOpen, onClose } = useDisclose();
 
   const handlePrizeSelection = useCallback(
     (prizeNumber: string) => {
@@ -53,7 +47,7 @@ export const Prizes = ({ navigation }: Props) => {
   );
 
   useEffect(() => {
-    onOpen();
+    setShowModal(true);
   }, []);
 
   const remove = useCallback((index: number) => {
@@ -77,7 +71,7 @@ export const Prizes = ({ navigation }: Props) => {
       setCurrentGame((prev) => ({ ...prev, bets: [...prev.bets, newBet] }));
       setSelectedPrizes([]);
       setBetAmount(0);
-      onClose();
+      setShowModal(false); // Fecha o modal após confirmar
     }
   }, [betAmount, selectedPrizes, currentGame.bets]);
 
@@ -129,37 +123,35 @@ export const Prizes = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <Actionsheet isOpen={isOpen} onClose={onClose}>
-        <Actionsheet.Content minHeight={"2xl"}>
-          <View
-            style={{ paddingHorizontal: 20, paddingTop: 30, width: "100%" }}
-          >
-            <Text style={localStyles.modalText}>
-              Selecione os prêmios desejados:
-            </Text>
-            <View style={{ paddingVertical: 20 }}>
-              <TextInput
-                value={formatterBRL(betAmount)}
-                onChangeText={(text) => {
-                  setBetAmount(parserBRL(text));
-                }}
-                style={
-                  {
-                    fontSize: 20,
-                    fontWeight: "600",
-                    borderWidth: 1,
-                    borderColor: "blue",
-                    borderRadius: 7,
-                    paddingHorizontal: 20,
-                    paddingVertical: 6,
-                    color: "black",
-                  } as TextInputProps["style"]
-                }
-                keyboardType="numeric"
-              />
-            </View>
-            {TYPE_GAME.markAll && (
-              <>
+      {/* Modal substituindo o Actionsheet */}
+      <Center>
+        <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+          <Modal.Content maxWidth="500px">
+            <Modal.CloseButton />
+            <Modal.Header>Selecione os prêmios</Modal.Header>
+            <Modal.Body>
+              <View style={{ paddingVertical: 20 }}>
+                <TextInput
+                  value={formatterBRL(betAmount)}
+                  onChangeText={(text) => {
+                    setBetAmount(parserBRL(text));
+                  }}
+                  style={
+                    {
+                      fontSize: 20,
+                      fontWeight: "600",
+                      borderWidth: 1,
+                      borderColor: "blue",
+                      borderRadius: 7,
+                      paddingHorizontal: 20,
+                      paddingVertical: 6,
+                      color: "black",
+                    } as TextInputProps["style"]
+                  }
+                  keyboardType="numeric"
+                />
+              </View>
+              {TYPE_GAME.markAll && (
                 <Button
                   bg={"blue.700"}
                   style={[{ marginBottom: 10 }]}
@@ -168,162 +160,98 @@ export const Prizes = ({ navigation }: Props) => {
                 >
                   Concorrendo do 1º ao 5º
                 </Button>
-                <View style={{ width: "100%", height: 190 }} />
-              </>
-            )}
-            {!TYPE_GAME.markAll && (
-              <>
-                <Button
-                  bg={"blue.700"}
-                  style={[{ marginBottom: 10 }]}
-                  width={"fit"}
-                  onPress={() => {
-                    if (selectAll) {
-                      setSelectAll(false);
-                      setSelectedPrizes(["1", "2", "3", "4", "5"]);
-                    } else {
-                      setSelectAll(true);
-                      setSelectedPrizes([]);
-                    }
-                  }}
-                >
-                  Selecionar do 1º ao 5º
-                </Button>
-
-                {["1", "2", "3", "4", "5"].map((prizeNumber) => (
+              )}
+              {!TYPE_GAME.markAll && (
+                <>
                   <Button
-                    key={prizeNumber}
-                    variant={
-                      selectedPrizes.includes(prizeNumber) ? "solid" : "outline"
-                    }
-                    bg={
-                      selectedPrizes.includes(prizeNumber)
-                        ? "orange.500"
-                        : "white"
-                    }
+                    bg={"blue.700"}
                     style={[{ marginBottom: 10 }]}
-                    onPress={() => handlePrizeSelection(prizeNumber)}
+                    width={"fit"}
+                    onPress={() => {
+                      if (selectAll) {
+                        setSelectAll(false);
+                        setSelectedPrizes(["1", "2", "3", "4", "5"]);
+                      } else {
+                        setSelectAll(true);
+                        setSelectedPrizes([]);
+                      }
+                    }}
                   >
-                    {`${prizeNumber}º Prêmio`}
+                    Selecionar do 1º ao 5º
                   </Button>
-                ))}
-              </>
-            )}
-          </View>
-          <View style={{ flexDirection: "row", marginTop: 10 }}>
-            <Button bg={"red.500"} flex={1} mr={4} onPress={onClose}>
-              Fechar
-            </Button>
-            <Button bg="blue.700" flex={1} onPress={handleConfirm}>
-              Confirmar
-            </Button>
-          </View>
-        </Actionsheet.Content>
-      </Actionsheet>
-      <View style={styles.container}>
-        <Text style={styles.title}>
-          Você está participando dos seguintes prêmios
-        </Text>
+                  {["1", "2", "3", "4", "5"].map((prizeNumber) => (
+                    <Button
+                      key={prizeNumber}
+                      variant={
+                        selectedPrizes.includes(prizeNumber)
+                          ? "solid"
+                          : "outline"
+                      }
+                      bg={
+                        selectedPrizes.includes(prizeNumber)
+                          ? "orange.500"
+                          : "white"
+                      }
+                      style={[{ marginBottom: 10 }]}
+                      onPress={() => handlePrizeSelection(prizeNumber)}
+                    >
+                      {`${prizeNumber}º Prêmio`}
+                    </Button>
+                  ))}
+                </>
+              )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button.Group space={2}>
+                <Button
+                  variant="ghost"
+                  colorScheme="red"
+                  onPress={() => setShowModal(false)}
+                >
+                  Fechar
+                </Button>
+                <Button bg="blue.700" onPress={handleConfirm}>
+                  Confirmar
+                </Button>
+              </Button.Group>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal>
+      </Center>
 
-        <FlatList
-          data={currentGame.bets}
-          style={{ flex: 1 }}
-          renderItem={showItem}
-          keyExtractor={(item, index) => index.toString()}
-        />
-        <View style={{ flexDirection: "row" }}>
-          <Button
-            bg="green.500"
-            flex={1}
-            mr={5}
-            onPress={onOpen}
-            variant={"subtle"}
-          >
-            Prêmios
-          </Button>
-          <Button bg="blue.700" flex={1} onPress={handleProceed}>
-            Prosseguir
-          </Button>
-        </View>
+      <Text style={styles.title}>
+        Você está participando dos seguintes prêmios
+      </Text>
+
+      <FlatList
+        data={currentGame.bets}
+        style={{ flex: 1 }}
+        renderItem={showItem}
+        keyExtractor={(item, index) => index.toString()}
+      />
+      <View style={{ flexDirection: "row" }}>
+        <Button
+          bg="green.500"
+          flex={1}
+          mr={5}
+          onPress={() => setShowModal(true)}
+          variant={"subtle"}
+        >
+          Prêmios
+        </Button>
+        <Button bg="blue.700" flex={1} onPress={handleProceed}>
+          Prosseguir
+        </Button>
       </View>
     </View>
   );
 };
 
 const localStyles = StyleSheet.create({
-  centeredView: {
-    // flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-  },
-  modalView: {
-    // flex: 1,
-    // flexDirection: "column",
-    width: "100%",
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
   modalText: {
     textAlign: "center",
     fontSize: 18,
     fontWeight: "bold",
-  },
-  prizeButton: {
-    marginVertical: 7,
-  },
-  prizeButtonText: {
-    color: "black",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  selectedPrize: {
-    backgroundColor: "#4CAF50",
-  },
-  input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-    fontSize: 16,
-    marginVertical: 10,
-  },
-  confirmButton: {
-    marginVertical: 10,
-    paddingHorizontal: 20,
-  },
-  closeButton: {
-    backgroundColor: "#FF5733",
-    marginVertical: 10,
-    paddingHorizontal: 20,
-  },
-  proceedButton: {
-    backgroundColor: "#6c63ff",
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-    marginTop: 10,
-    alignItems: "center",
-  },
-  prizesButton: {
-    backgroundColor: "#00aa1c",
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-    marginTop: 10,
-    alignItems: "center",
   },
   betItem: {
     borderWidth: 1,
@@ -336,8 +264,5 @@ const localStyles = StyleSheet.create({
   betItemText: {
     fontSize: 16,
     color: "black",
-  },
-  scrollContainer: {
-    flexGrow: 1,
   },
 });
