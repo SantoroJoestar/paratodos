@@ -54,6 +54,8 @@ export default ({ navigation, route }: Props) => {
           if (input[inputIndex]) {
             formattedInput += input[inputIndex];
             inputIndex++;
+          } else {
+            break; // Se o input acabou, paramos de adicionar novos caracteres
           }
         }
       }
@@ -69,12 +71,33 @@ export default ({ navigation, route }: Props) => {
       // Remove qualquer caractere que não seja número
       const numericInput = input.replace(/\D/g, "");
 
+      // Verifica se o usuário está apagando caracteres
+      const isDeleting = input.length < number.length;
+
       // Aplica o formato correto
-      const formatted = formatInput(numericInput);
+      let formatted = formatInput(numericInput);
+
+      if (isDeleting && formatted.endsWith("-")) {
+        // Caso o último caractere seja um "-", remova-o
+        formatted = formatted.slice(0, -1);
+      }
+
       setNumber(formatted);
 
       // Verifica se o input está completo
-      if (formatted.length === TYPE_GAME.format.length) {
+      if (!isDeleting && formatted.length === TYPE_GAME.format.length) {
+        if (TYPE_GAME.max > 0) {
+          const formattedSplit = formatted.split("-");
+          for (const form of formattedSplit) {
+            if (Number(form) > TYPE_GAME.max) {
+              Alert.alert(
+                "Número nao pode ser maior que " + TYPE_GAME.max + "!"
+              );
+              return;
+            }
+          }
+        }
+
         setCurrentGame((prev) => ({
           ...prev,
           numbers: [...prev.numbers, formatted],
@@ -82,7 +105,7 @@ export default ({ navigation, route }: Props) => {
         setNumber(""); // Reseta o input
       }
     },
-    [formatInput, TYPE_GAME.format]
+    [formatInput, number, TYPE_GAME.format]
   );
 
   const deleteNumber = useCallback(
