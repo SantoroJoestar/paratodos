@@ -6,147 +6,107 @@ import {
   FlatList,
   StyleSheet,
   Alert,
+  TextInput,
   ListRenderItem,
 } from "react-native";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { GAMES } from "../constants/GAMES";
-import OTPInput from "../components/OTPInput";
 import { Button } from "native-base";
 import { useCart } from "../providers/CartContext";
-import { generatePule } from "../utils/generatePule";
-import { formatarNumeros } from "../utils/generateChaves";
-import { useSettings } from "../providers/SettingsContext";
-import { RootStackParamList } from "../types/routes.type";
 import { GameModel } from "../models/GameModel";
-import { compareArrays } from "../utils/compareArrays";
+
+import { RootStackParamList } from "../types/routes.type";
+import { useSettings } from "../providers/SettingsContext";
+import { formatarNumeros } from "../utils/generateChaves";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Game">;
 
-export const Game = ({ navigation, route }: Props) => {
+export default ({ navigation, route }: Props) => {
   const { type } = route.params;
   const { currentGame, setCurrentGame, cart } = useCart();
 
-  const [currentGameThis, setCurrentGameThis] = useState(currentGame);
+  const { chaveValendo } = useSettings();
 
   const [number, setNumber] = useState<string>("");
 
   // Memoriza o tipo de jogo e limite para evitar re-cálculo nas renderizações
   const TYPE_GAME = useMemo(() => GAMES[type], [type]);
-  const limit = useMemo(() => TYPE_GAME.max, [TYPE_GAME]);
 
   // Inicializa o jogo e gera um pule ao montar o componente
   useEffect(() => {
-    setCurrentGameThis(
+    setCurrentGame(
       GameModel({
         _id: TYPE_GAME.id,
       })
     );
-  }, [TYPE_GAME, setCurrentGameThis]);
+  }, [TYPE_GAME, setCurrentGame]);
 
-  // Usa o `useCallback` para evitar re-criação de funções em cada renderização
-  const addNumber = useCallback(
-    (num: string) => {
-      setCurrentGameThis((prev) => ({
-        ...prev,
-        numbers: [...prev.numbers, num],
-      }));
+  // Função para formatar o input conforme o formato definido no jogo
+  const formatInput = useCallback(
+    (input: string) => {
+      let formattedInput = "";
+      let inputIndex = 0;
+
+      for (let i = 0; i < TYPE_GAME.format.length; i++) {
+        if (TYPE_GAME.format[i] === "-") {
+          formattedInput += "-";
+        } else {
+          if (input[inputIndex]) {
+            formattedInput += input[inputIndex];
+            inputIndex++;
+          }
+        }
+      }
+
+      return formattedInput;
     },
-    [setCurrentGameThis]
+    [TYPE_GAME.format]
+  );
+
+  // Função para adicionar números formatados
+  const handleInputChange = useCallback(
+    (input: string) => {
+      // Remove qualquer caractere que não seja número
+      const numericInput = input.replace(/\D/g, "");
+
+      // Aplica o formato correto
+      const formatted = formatInput(numericInput);
+      setNumber(formatted);
+
+      // Verifica se o input está completo
+      if (formatted.length === TYPE_GAME.format.length) {
+        setCurrentGame((prev) => ({
+          ...prev,
+          numbers: [...prev.numbers, formatted],
+        }));
+        setNumber(""); // Reseta o input
+      }
+    },
+    [formatInput, TYPE_GAME.format]
   );
 
   const deleteNumber = useCallback(
     (index: number) => {
-      setCurrentGameThis((prev) => ({
+      setCurrentGame((prev) => ({
         ...prev,
         numbers: prev.numbers.filter((_, i) => i !== index),
       }));
     },
-    [setCurrentGameThis]
+    [setCurrentGame]
   );
 
-  const validateCode = useCallback(
-    (inputCode: string) => {
-      if (!limit) return true;
-
-      const parts = inputCode.split("-");
-      for (const part of parts) {
-        const numericValue = parseInt(part);
-        if (numericValue > limit) {
-          Alert.alert("Erro", "Dezena nao pode ser maior que " + limit + "!");
-          return false;
-        }
-      }
-      return true;
-    },
-    [limit]
-  );
-
-  // Função otimizada para lidar com a mudança de input
-  const handleInputChange = useCallback(
-    (value: string) => {
-      setNumber((prev) => {
-        let newValue = prev;
-
-        const nextCharIndex = prev.length;
-        if (TYPE_GAME.format[nextCharIndex] === "-") {
-          newValue = prev + "-" + value;
-        } else {
-          newValue = prev + value;
-        }
-
-        // Valida o código quando ele atingir o formato correto
-        if (
-          newValue.length === TYPE_GAME.format.length &&
-          validateCode(newValue)
-        ) {
-          addNumber(newValue);
-          return "";
-        }
-
-        return newValue;
-      });
-    },
-    [TYPE_GAME.format, addNumber, validateCode]
-  );
-
-  const handleDeleteLast = useCallback(() => {
-    setNumber((prev) => {
-      const nextCharIndex = prev.length - 1;
-      if (TYPE_GAME.format[nextCharIndex] === "-") {
-        return prev.slice(0, -2);
-      }
-      return prev.slice(0, -1);
-    });
-  }, [TYPE_GAME.format]);
-
-  const handleNext = useCallback(() => {
-    if (currentGameThis.numbers.length === 0) {
+  const handleNext = () => {
+    if (currentGame.numbers.length === 0) {
       Alert.alert(
         "Erro",
         "Adicione pelo menos um número no formato " + TYPE_GAME.format
       );
     } else {
-      if (
-        cart.games.length > 0 &&
-        compareArrays(
-          currentGameThis.numbers,
-          cart.games[cart.games.length - 1].numbers
-        )
-      ) {
-        navigation.navigate("Cart");
-      } else {
-        setCurrentGame(currentGameThis);
-        navigation.navigate("Prizes", {
-          pule: cart.pule,
-        });
-      }
+      navigation.navigate("Prizes", {
+        pule: cart.pule,
+      });
     }
-  }, [currentGameThis.numbers, navigation, TYPE_GAME.format, cart.games]);
-
-  const handleOk = useCallback(() => {
-    handleNext();
-  }, [handleNext]);
-
+  };
   // Função para mostrar itens na lista
   const showItem = useCallback<ListRenderItem<string>>(
     ({ item, index }) => (
@@ -160,121 +120,102 @@ export const Game = ({ navigation, route }: Props) => {
     [deleteNumber]
   );
 
+  useEffect(() => {
+    const generateNumbers = () => {
+      const newNumbers: string[] = [];
+      cart.games.forEach((game) => {
+        game.numbers.forEach((number) => {
+          if (TYPE_GAME.id === "dezena") {
+            const nums = number.split("-");
+            for (const num of nums) {
+              if (num.length < TYPE_GAME.format.length) continue;
+              const n = formatarNumeros(num, TYPE_GAME.format);
+              newNumbers.push(n);
+            }
+            return;
+          }
+          const num = number.replaceAll("-", "");
+          if (num.length < TYPE_GAME.format.replaceAll("-", "").length) return;
+          const n = formatarNumeros(num, TYPE_GAME.format);
+          newNumbers.push(n);
+        });
+      });
+
+      const uniqueCombinations = new Set(newNumbers);
+
+      const nums = Array.from(uniqueCombinations);
+
+      setCurrentGame((prev) => ({
+        ...prev,
+        numbers: nums,
+      }));
+    };
+
+    console.log("------- ");
+    console.log("chaveValendo: ", chaveValendo);
+    console.log("TYPE_GAME.max: ", TYPE_GAME.max);
+
+    if (chaveValendo && !TYPE_GAME.max) generateNumbers();
+  }, [route.name]);
+
   return (
     <View style={{ flex: 1, padding: 20 }}>
-      <OTPInput code={number} format={TYPE_GAME.format} />
+      {/* Substitui o OTPInput por TextInput */}
+      <TextInput
+        style={{
+          fontSize: 20,
+          fontWeight: "600",
+          textAlign: "center",
+          borderWidth: 1,
+          borderColor: "blue",
+          borderRadius: 7,
+          paddingHorizontal: 20,
+          backgroundColor: "white",
+          paddingVertical: 6,
+          color: "black",
+        }}
+        value={number}
+        keyboardType="numeric"
+        onChangeText={handleInputChange}
+        maxLength={TYPE_GAME.format.length} // Define o máximo baseado no formato
+        placeholder={TYPE_GAME.format} // Exibe o formato como placeholder
+      />
 
       <FlatList
         style={{ flex: 1, marginVertical: 20 }}
-        data={currentGameThis.numbers}
+        data={currentGame.numbers}
         renderItem={showItem}
         keyExtractor={(item, index) => index.toString()}
-        extraData={currentGameThis.numbers}
+        extraData={currentGame.numbers}
       />
 
       {/* Grade de botões numéricos */}
-      <View style={localStyles.gridContainer}>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("1")}
-        >
-          <Text style={localStyles.buttonText}>1</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("2")}
-        >
-          <Text style={localStyles.buttonText}>2</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("3")}
-        >
-          <Text style={localStyles.buttonText}>3</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("4")}
-        >
-          <Text style={localStyles.buttonText}>4</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("5")}
-        >
-          <Text style={localStyles.buttonText}>5</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("6")}
-        >
-          <Text style={localStyles.buttonText}>6</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("7")}
-        >
-          <Text style={localStyles.buttonText}>7</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("8")}
-        >
-          <Text style={localStyles.buttonText}>8</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("9")}
-        >
-          <Text style={localStyles.buttonText}>9</Text>
-        </Button>
-        <Button
-          bg="red.500"
-          style={localStyles.gameButton}
-          onPress={handleDeleteLast}
-        >
-          <Text style={localStyles.buttonText}>X</Text>
-        </Button>
-        <Button
-          bg="blue.700"
-          style={localStyles.gameButton}
-          onPress={() => handleInputChange("0")}
-        >
-          <Text style={localStyles.buttonText}>0</Text>
-        </Button>
-        <Button
-          bg="green.500"
-          style={localStyles.gameButton}
-          onPress={handleOk}
-        >
-          <Text style={localStyles.buttonText}>OK</Text>
-        </Button>
-      </View>
+
+      <Button onPress={handleNext} bg="blue.700">
+        Confirmar
+      </Button>
     </View>
   );
 };
 
 const localStyles = StyleSheet.create({
+  input: {
+    height: 50,
+    borderColor: "gray",
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    fontSize: 24,
+    textAlign: "center",
+    marginBottom: 20,
+  },
   gridContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    height: 210,
-    justifyContent: "space-between",
+    justifyContent: "center",
     marginVertical: 10,
   },
   gameButton: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
     width: "32%",
     aspectRatio: 1,
   },

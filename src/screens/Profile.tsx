@@ -18,7 +18,7 @@ import { useAuth } from "../providers/AuthContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
 
-export const Profile = ({ navigation }: Props) => {
+export default ({ navigation }: Props) => {
   const { user } = useAuth();
 
   return (

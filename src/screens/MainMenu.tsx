@@ -7,11 +7,10 @@ import { RootStackParamList } from "../types/routes.type";
 import { BottomCart } from "../components/BottomCart";
 import { Button, Divider, ScrollView } from "native-base";
 import { useAuth } from "../providers/AuthContext";
-import { UserType } from "../types/user.type";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MainMenu">;
 
-export const MainMenu = ({ navigation }: Props) => {
+export default ({ navigation }: Props) => {
   const { logout } = useAuth();
 
   const handleLogout = () => {
@@ -34,7 +33,7 @@ export const MainMenu = ({ navigation }: Props) => {
           }}
         />
 
-        <Button bg={"blue.700"}>
+        <Button bg={"blue.700"} onPress={() => navigation.navigate("Scanner")}>
           <Text style={localStyles.menuButtonText}>REPETIR PULE</Text>
         </Button>
         <Button bg={"blue.700"} mt={3}>

@@ -14,6 +14,7 @@ export type RootStackParamList = {
   MainMenu: undefined;
   MenuGames: undefined;
   Profile: undefined;
+  Scanner: undefined;
 };
 
 //

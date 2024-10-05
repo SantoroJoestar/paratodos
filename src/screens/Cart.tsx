@@ -30,7 +30,7 @@ import { formatterBRL } from "../utils/formatCurrency";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
-export const Cart = ({ route, navigation }: Props) => {
+export default ({ route, navigation }: Props) => {
   const { cart, removeFromCart } = useCart();
   const { setShowChave, setChaveValendo } = useSettings();
 

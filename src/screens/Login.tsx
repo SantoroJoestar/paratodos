@@ -17,7 +17,7 @@ import { useAuth } from "../providers/AuthContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
-export const Login = ({ navigation }: Props) => {
+export default ({ navigation }: Props) => {
   const toast = useToast();
   const { login: loginAuth } = useAuth();
   const [form, setForm] = useState({

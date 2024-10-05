@@ -19,10 +19,12 @@ import { GAMES } from "../constants/GAMES";
 import { useSettings } from "../providers/SettingsContext";
 import { formatterBRL, parserBRL } from "../utils/formatCurrency";
 import { styles } from "../styles";
+import { compareArrays } from "../utils/compareArrays";
+import { clone } from "../utils/clone";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Prizes">;
 
-export const Prizes = ({ navigation }: Props) => {
+export default ({ navigation }: Props) => {
   const [selectedPrizes, setSelectedPrizes] = useState<string[]>([]);
   const [betAmount, setBetAmount] = useState(0);
   const [selectAll, setSelectAll] = useState(true);
@@ -79,16 +81,43 @@ export const Prizes = ({ navigation }: Props) => {
     if (currentGame.bets.length === 0) {
       Alert.alert("Erro", "Faça pelo menos uma aposta antes de prosseguir.");
     } else {
-      setCart((prev) => ({
-        ...prev,
-        games: [...prev.games, currentGame],
-      }));
+      if (cart.games.length === 0) {
+        setCart((prev) => ({
+          ...prev,
+          games: [currentGame],
+        }));
+      }
+
+      if (cart.games.length > 0) {
+        const lastGame = clone(cart.games[cart.games.length - 1]);
+        let games = clone(cart.games);
+
+        const lastNumbers = clone(lastGame.numbers.sort());
+        const currentNumbers = clone(lastGame.numbers.sort());
+
+        if (
+          lastGame._id === currentGame._id &&
+          compareArrays(lastNumbers, currentNumbers)
+        ) {
+          games[games.length - 1] = currentGame;
+
+          setCart((prev) => ({
+            ...prev,
+            games: games,
+          }));
+        } else {
+          setCart((prev) => ({
+            ...prev,
+            games: [...prev.games, currentGame],
+          }));
+        }
+      }
 
       if (chaveValendo) navigation.navigate("MenuGames");
 
       navigation.navigate("Cart");
     }
-  }, [currentGame.bets]);
+  }, [currentGame, cart.games]);
 
   useEffect(() => {
     if (TYPE_GAME.markAll) setSelectedPrizes(["1", "2", "3", "4", "5"]);

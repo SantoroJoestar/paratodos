@@ -1,124 +1,131 @@
 /* eslint-disable prettier/prettier */
 import "react-native-gesture-handler";
-import React, { useEffect, useState } from "react";
+import React, { lazy, useEffect, useState, Suspense } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   CardStyleInterpolators,
   createStackNavigator,
 } from "@react-navigation/stack";
 import { RootStackParamList } from "../types/routes.type";
-
-// Pages
-import { Login } from "../screens/Login";
-import { MainMenu } from "../screens/MainMenu";
-import { Profile } from "../screens/Profile";
-import { Game } from "../screens/Game";
-import { GameWithInput } from "../screens/GameWithInput";
-import { MenuGames } from "../screens/MenuGames";
-import { Prizes } from "../screens/Prizes";
-import { ConfirmGame } from "../screens/ConfirmGame";
-import { GAMES } from "../constants/GAMES";
-import { Cart } from "../screens/Cart";
+import { enableScreens } from "react-native-screens";
 import { useAuth } from "./AuthContext";
 import { LoadingScreen } from "../screens/LoadingScreen";
-import { enableScreens } from "react-native-screens";
+import { GAMES } from "../constants/GAMES";
+
+// Lazy-loaded pages
+import MainMenu from "../screens/MainMenu";
+import Login from "../screens/Login";
+
+const Profile = lazy(() => import("../screens/Profile"));
+const Game = lazy(() => import("../screens/Game"));
+const MenuGames = lazy(() => import("../screens/MenuGames"));
+const Prizes = lazy(() => import("../screens/Prizes"));
+const ConfirmGame = lazy(() => import("../screens/ConfirmGame"));
+const Cart = lazy(() => import("../screens/Cart"));
+const Scanner = lazy(() => import("../screens/Scanner"));
 
 enableScreens();
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 export const Routes = () => {
-  const { authenticated } = useAuth();
-
+  const { authenticated, user } = useAuth();
   const [loading, setLoading] = useState(true);
 
+  console.log("authenticated: ", authenticated);
+  console.log("user: ", user);
+
   useEffect(() => {
-    // Simulando uma verificação de autenticação (pode ser uma chamada à API)
     const checkAuth = async () => {
-      // Imagine que você tem uma função para verificar a autenticação
-      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulando atraso
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 500));
       setLoading(false);
     };
 
-    setLoading(true);
     checkAuth();
   }, [authenticated]);
 
   if (loading) {
-    // Retornar uma tela de carregamento enquanto verificamos a autenticação
     return <LoadingScreen />;
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: "transparent",
-          },
-          headerTitleStyle: {
-            fontSize: 25,
-            fontWeight: 500,
-          },
-          animationEnabled: false,
-          gestureDirection: "horizontal", // Define a direção do gesto como horizontal
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, // Animação padrão de transição horizontal
-        }}
-      >
-        {!authenticated && (
-          <Stack.Screen
-            name="Login"
-            options={{ title: "", headerShown: false }}
-            component={Login}
-          />
-        )}
-        {authenticated && (
-          <>
+    <Suspense fallback={<LoadingScreen />}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName={authenticated ? "MainMenu" : "Login"}
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: "transparent",
+            },
+            headerTitleStyle: {
+              fontSize: 25,
+              fontWeight: 500,
+            },
+            animationEnabled: false,
+            gestureDirection: "horizontal",
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          }}
+        >
+          {!authenticated && (
             <Stack.Screen
-              name="MainMenu"
-              options={{ title: "Menu Principal" }}
-              component={MainMenu}
+              name="Login"
+              options={{ title: "", headerShown: false }}
+              component={Login}
             />
-            <Stack.Screen
-              name="MenuGames"
-              options={{ title: "Jogos" }}
-              component={MenuGames}
-            />
-            <Stack.Screen
-              name="Cart"
-              options={{ title: "Carrinho" }}
-              component={Cart}
-            />
-            <Stack.Screen
-              name="ConfirmGame"
-              options={{ title: "Confirmar Jogo" }}
-              component={ConfirmGame}
-            />
-            <Stack.Screen
-              name="Game"
-              options={({ route }) => ({
-                headerTitle:
-                  GAMES[route.params?.type].label +
-                    " (" +
-                    route.params?.pule +
-                    ")" || "Jogo",
-              })}
-              component={GameWithInput}
-            />
-            <Stack.Screen
-              name="Prizes"
-              options={{ title: "" }}
-              component={Prizes}
-            />
-            <Stack.Screen
-              name="Profile"
-              options={{ title: "Meu Perfil" }}
-              component={Profile}
-            />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+          )}
+          {authenticated && (
+            <>
+              <Stack.Screen
+                name="MainMenu"
+                options={{ title: "Menu Principal" }}
+                component={MainMenu}
+              />
+              <Stack.Screen
+                name="MenuGames"
+                options={{ title: "Jogos" }}
+                component={MenuGames}
+              />
+              <Stack.Screen
+                name="Scanner"
+                options={{ title: "Scaneie o QR Code" }}
+                component={Scanner}
+              />
+              <Stack.Screen
+                name="Cart"
+                options={{ title: "Carrinho" }}
+                component={Cart}
+              />
+              <Stack.Screen
+                name="ConfirmGame"
+                options={{ title: "Confirmar Jogo" }}
+                component={ConfirmGame}
+              />
+              <Stack.Screen
+                name="Game"
+                options={({ route }) => ({
+                  headerTitle:
+                    GAMES[route.params?.type].label +
+                      " (" +
+                      route.params?.pule +
+                      ")" || "Jogo",
+                })}
+                component={Game}
+              />
+              <Stack.Screen
+                name="Prizes"
+                options={{ title: "" }}
+                component={Prizes}
+              />
+              <Stack.Screen
+                name="Profile"
+                options={{ title: "Meu Perfil" }}
+                component={Profile}
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Suspense>
   );
 };

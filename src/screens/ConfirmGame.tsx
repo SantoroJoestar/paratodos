@@ -15,7 +15,7 @@ import {
   Spinner,
   useDisclose,
 } from "native-base";
-import { format } from "date-fns";
+import { add, format, setHours, setMinutes, setSeconds } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useCart } from "../providers/CartContext";
 import { print } from "../utils/print";
@@ -35,14 +35,14 @@ const HourTimesInitial = {
   "19": false,
 };
 
-export const ConfirmGame = ({ navigation }: Props) => {
+export default ({ navigation }: Props) => {
   const { cart, newCart, setCart } = useCart();
   const { user } = useAuth();
 
   const dateNow = useMemo(() => new Date(), []);
 
   const [loading, setLoading] = useState(false);
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(dateNow);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTimes, setSelectedTimes] = useState(HourTimesInitial);
 
@@ -72,6 +72,8 @@ export const ConfirmGame = ({ navigation }: Props) => {
   );
 
   const confirmBets = useCallback(async () => {
+    if (loading) return;
+
     if (cart.time === "") {
       Alert.alert("Erro", "Você deve escolher um horário.");
       return;
@@ -145,17 +147,18 @@ export const ConfirmGame = ({ navigation }: Props) => {
       setLoading(false);
       onClose();
     }
-  }, [cart, newCart, user, onOpen, onClose, navigation]);
+  }, [cart, newCart, user, onOpen, onClose, navigation, loading]);
 
-  const timesChoose = useMemo(() => {
-    return Object.keys(selectedTimes)
-      .sort((a, b) => (Number(a) < Number(b) ? -1 : 1))
-      .filter((time) => {
-        const selectedDateTime = new Date(date);
-        selectedDateTime.setHours(Number(time), 0, 0, 0);
-        return selectedDateTime > dateNow;
-      });
-  }, [selectedTimes, date, dateNow]);
+  const timesChoose = Object.keys(selectedTimes)
+    .sort((a, b) => (Number(a) < Number(b) ? -1 : 1))
+    .filter((time) => {
+      const addedTime = add(dateNow, { minutes: 30 });
+      const selectedDateTime = setSeconds(
+        setMinutes(setHours(date, Number(time)), 0),
+        0
+      );
+      return addedTime < selectedDateTime;
+    });
 
   return (
     <View style={styles.scrollContainer}>
@@ -238,7 +241,7 @@ export const ConfirmGame = ({ navigation }: Props) => {
           </Text>
         </View>
         <Button onPress={confirmBets} bg="blue.700">
-          Confirmar
+          {loading ? "Carregando..." : "Confirmar"}
         </Button>
       </View>
     </View>

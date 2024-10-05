@@ -13,7 +13,7 @@ import { useCart } from "../providers/CartContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MenuGames">;
 
-export const MenuGames = ({ navigation }: Props) => {
+export default ({ navigation }: Props) => {
   const { chaveValendo, setChaveValendo, showChave } = useSettings();
   const { cart } = useCart();
 

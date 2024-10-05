@@ -1,4 +1,8 @@
 {
+  "compilerOptions": {
+    "module": "esnext", // ou "es2020" conforme a necessidade do projeto
+    // outras opções do seu projeto
+  },
   "extends": "@react-native/typescript-config/tsconfig.json",
   "include": [
     "src/**/*.ts",
