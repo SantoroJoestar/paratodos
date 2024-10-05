@@ -1,3 +1,5 @@
+import path from 'path';
+
 import { Alert } from "react-native";
 // @ts-ignore
 import * as SunmiPrinterLibrary from "@mitsuharu/react-native-sunmi-printer-library";
@@ -9,12 +11,21 @@ import { GAMES } from "../constants/GAMES";
 import { calculateAmountGame } from "./calculateAmountGame";
 import { numbersSelectedFormated } from "./numbersSelectedFormated";
 import { UserType } from "../types/user.type";
+import { convertImageToBase64 } from "./convertImageToBase64";
 
 export const print = async (cart: CartType, cambista: UserType) => {
   try {
     await SunmiPrinterLibrary.prepare();
 
+    const imagePath = path.join(__dirname, '../assets/logo.png');
+
+    const imageBase64 = await convertImageToBase64(imagePath)
+
+    await SunmiPrinterLibrary.printImage(imageBase64, 10, "grayscale")
+
     const header = `
+Paratodos
+
 Via do Cliente
 
 Data: ${format(cart.dateCreated, "dd/MM/yyyy HH:mm:ss")}
@@ -24,9 +35,9 @@ Data da Aposta: ${format(cart.dateBet, "dd/MM/yyyy")}
 Extração: ${cart.time} HRS
 Terminal: 00001
 Cambista: ${cambista.name}
-----------------------------------
-              APOSTAS
-----------------------------------\n`;
+--------------------------------
+            APOSTAS
+--------------------------------\n`;
 
     // Dinamicamente gerar os jogos
     const jogos = cart.games
@@ -55,8 +66,8 @@ Cambista: ${cambista.name}
 Total: ${formatterBRL(calculateAmountGame(cart.games))}
 --------------------------------
 Reclamações: 7 dia(s)
----------------------------
-Repetir Pule:\n`;
+--------------------------------
+Repetir Pule:`;
 
     // Conteúdo completo
     const content = header + jogos + footer;
