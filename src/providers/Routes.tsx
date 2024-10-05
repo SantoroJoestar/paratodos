@@ -16,6 +16,14 @@ import { GAMES } from "../constants/GAMES";
 import MainMenu from "../screens/MainMenu";
 import Login from "../screens/Login";
 
+// import Profile from "../screens/Profile";
+// import Game from "../screens/Game";
+// import MenuGames from "../screens/MenuGames";
+// import Prizes from "../screens/Prizes";
+// import ConfirmGame from "../screens/ConfirmGame";
+// import Cart from "../screens/Cart";
+// import Scanner from "../screens/Scanner";
+
 const Profile = lazy(() => import("../screens/Profile"));
 const Game = lazy(() => import("../screens/Game"));
 const MenuGames = lazy(() => import("../screens/MenuGames"));
@@ -31,9 +39,6 @@ const Stack = createStackNavigator<RootStackParamList>();
 export const Routes = () => {
   const { authenticated, user } = useAuth();
   const [loading, setLoading] = useState(true);
-
-  console.log("authenticated: ", authenticated);
-  console.log("user: ", user);
 
   useEffect(() => {
     const checkAuth = async () => {

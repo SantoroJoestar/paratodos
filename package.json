@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "generate-apk": "cd ./android && ./gradlew assembleRelease"
+    "generate-apk": "cd ./android && ./gradlew assembleRelease",
+    "clean-cache-apk": "cd ./android && ./gradlew clean"
   },
   "dependencies": {
     "@mitsuharu/react-native-sunmi-printer-library": "^2.2.0",
@@ -25,6 +26,7 @@
     "react-dom": "^18.3.1",
     "react-native": "0.74.2",
     "react-native-camera": "^4.2.1",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.17.0",
     "react-native-permissions": "^4.1.5",
     "react-native-qrcode-scanner": "^1.5.5",

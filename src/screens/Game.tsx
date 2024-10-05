@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -21,7 +21,7 @@ import { formatarNumeros } from "../utils/generateChaves";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Game">;
 
-export default ({ navigation, route }: Props) => {
+export default memo(({ navigation, route }: Props) => {
   const { type } = route.params;
   const { currentGame, setCurrentGame, cart } = useCart();
 
@@ -31,16 +31,6 @@ export default ({ navigation, route }: Props) => {
 
   // Memoriza o tipo de jogo e limite para evitar re-cálculo nas renderizações
   const TYPE_GAME = useMemo(() => GAMES[type], [type]);
-
-  // Inicializa o jogo e gera um pule ao montar o componente
-  useEffect(() => {
-    setCurrentGame(
-      GameModel({
-        _id: TYPE_GAME.id,
-      })
-    );
-  }, [TYPE_GAME, setCurrentGame]);
-
   // Função para formatar o input conforme o formato definido no jogo
   const formatInput = useCallback(
     (input: string) => {
@@ -143,7 +133,14 @@ export default ({ navigation, route }: Props) => {
     [deleteNumber]
   );
 
+  // Inicializa o jogo e gera um pule ao montar o componente
   useEffect(() => {
+    setCurrentGame(
+      GameModel({
+        _id: TYPE_GAME.id,
+      })
+    );
+
     const generateNumbers = () => {
       const newNumbers: string[] = [];
       cart.games.forEach((game) => {
@@ -174,16 +171,11 @@ export default ({ navigation, route }: Props) => {
       }));
     };
 
-    console.log("------- ");
-    console.log("chaveValendo: ", chaveValendo);
-    console.log("TYPE_GAME.max: ", TYPE_GAME.max);
-
     if (chaveValendo && !TYPE_GAME.max) generateNumbers();
-  }, [route.name]);
+  }, [TYPE_GAME, setCurrentGame]);
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
-      {/* Substitui o OTPInput por TextInput */}
       <TextInput
         style={{
           fontSize: 20,
@@ -219,7 +211,7 @@ export default ({ navigation, route }: Props) => {
       </Button>
     </View>
   );
-};
+});
 
 const localStyles = StyleSheet.create({
   input: {

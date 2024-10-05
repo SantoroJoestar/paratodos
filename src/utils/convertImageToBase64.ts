@@ -1,15 +1,11 @@
-import fs from "fs";
+import RNFS from 'react-native-fs';
 
 export const convertImageToBase64 = async (filePath: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        // Converter para base64
-        const base64Image = data.toString("base64");
-        resolve(base64Image);
-      }
-    });
-  });
+  try {
+    const base64Image = await RNFS.readFile(filePath, 'base64');
+    return base64Image;
+  } catch (err) {
+    console.error("Erro ao converter imagem:", err);
+    throw err;
+  }
 };

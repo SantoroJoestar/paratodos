@@ -1,5 +1,3 @@
-import path from 'path';
-
 import { Alert } from "react-native";
 // @ts-ignore
 import * as SunmiPrinterLibrary from "@mitsuharu/react-native-sunmi-printer-library";
@@ -12,12 +10,13 @@ import { calculateAmountGame } from "./calculateAmountGame";
 import { numbersSelectedFormated } from "./numbersSelectedFormated";
 import { UserType } from "../types/user.type";
 import { convertImageToBase64 } from "./convertImageToBase64";
+import { moveImageToFileSystem } from "./moveImagetToFileSystem";
 
 export const print = async (cart: CartType, cambista: UserType) => {
   try {
     await SunmiPrinterLibrary.prepare();
 
-    const imagePath = path.join(__dirname, '../assets/logo.png');
+    const imagePath = await moveImageToFileSystem();
 
     const imageBase64 = await convertImageToBase64(imagePath)
 
@@ -82,6 +81,6 @@ Repetir Pule:`;
 
     Alert.alert("Apostas confirmadas! Impressão realizada com sucesso");
   } catch (error: any) {
-    Alert.alert("Erro na impressão: ", error.message);
+    Alert.alert("Erro na impressão: ", error?.message || "Dispositivo não tem suporte para impressão");
   }
 };

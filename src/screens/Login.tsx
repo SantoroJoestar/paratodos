@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import { useAuth } from "../providers/AuthContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
-export default ({ navigation }: Props) => {
+export default memo(({ navigation }: Props) => {
   const toast = useToast();
   const { login: loginAuth } = useAuth();
   const [form, setForm] = useState({
@@ -107,7 +107,7 @@ export default ({ navigation }: Props) => {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

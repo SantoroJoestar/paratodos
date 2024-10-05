@@ -82,3 +82,9 @@ To learn more about React Native, take a look at the following resources:
 ## Documentaçao 
 
 Adicione a extensao hediet.vscode-drawio
+
+## Arquiteturas com suporte comum:
+armeabi-v7a: Para dispositivos Android ARM de 32 bits. -> A única que funciona na maquininha Smart P2
+arm64-v8a: Para dispositivos Android ARM de 64 bits.
+x86: Para emuladores e dispositivos Android x86.
+x86_64: Para emuladores e dispositivos Android x86 de 64 bits.
