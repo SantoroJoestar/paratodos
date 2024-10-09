@@ -35,7 +35,7 @@ export const BottomCart = ({ children, navigation }: Props) => {
             </Text>
           </View>
           {/* @ts-ignore */}
-          <Button bg={"yellow.600"} onPress={() => navigation.navigate("Cart")}>
+          <Button bg={"yellow.600"} onPress={() => navigation.replace("Cart")}>
             Ver carrinho
           </Button>
         </View>

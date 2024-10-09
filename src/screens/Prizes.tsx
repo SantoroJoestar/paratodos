@@ -7,6 +7,8 @@ import {
   TextInputProps,
   TextInput,
   ListRenderItem,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { NativeStackScreenProps } from "react-native-screens/lib/typescript/native-stack/types";
 import { RootStackParamList } from "../types/routes.type";
@@ -16,22 +18,23 @@ import { numbersSelectedFormated } from "../utils/numbersSelectedFormated";
 import { BetType } from "../types/bet.type";
 import { useCart } from "../providers/CartContext";
 import { GAMES } from "../constants/GAMES";
-import { useSettings } from "../providers/SettingsContext";
+
 import { formatterBRL, parserBRL } from "../utils/formatCurrency";
 import { styles } from "../styles";
 import { compareArrays } from "../utils/compareArrays";
 import { clone } from "../utils/clone";
+import { TitleBack } from "../components/TitleBack";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Prizes">;
 
-export default ({ navigation }: Props) => {
+export default ({ route, navigation }: Props) => {
   const [selectedPrizes, setSelectedPrizes] = useState<string[]>([]);
   const [betAmount, setBetAmount] = useState(0);
   const [selectAll, setSelectAll] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
-  const { cart, currentGame, setCurrentGame, setCart } = useCart();
-  const { chaveValendo } = useSettings();
+  const { cart, currentGame, setCurrentGame, setCart, chaveValendo } =
+    useCart();
 
   const TYPE_GAME = GAMES[currentGame._id];
 
@@ -113,9 +116,9 @@ export default ({ navigation }: Props) => {
         }
       }
 
-      if (chaveValendo) navigation.navigate("MenuGames");
+      if (chaveValendo) navigation.replace("MenuGames");
 
-      navigation.navigate("Cart");
+      navigation.replace("Cart");
     }
   }, [currentGame, cart.games]);
 
@@ -152,14 +155,22 @@ export default ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      {/* Modal substituindo o Actionsheet */}
+      <TitleBack
+        navigation={navigation}
+        route={route}
+        title={"Premios - " + TYPE_GAME.label}
+        params={{
+          type: TYPE_GAME.id,
+          pule: cart.pule,
+        }}
+      />
       <Center>
         <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
           <Modal.Content maxWidth="500px">
             <Modal.CloseButton />
             <Modal.Header>Selecione os prêmios</Modal.Header>
             <Modal.Body>
-              <View style={{ paddingVertical: 20 }}>
+              <View style={{ paddingVertical: 0 }}>
                 <TextInput
                   value={formatterBRL(betAmount)}
                   onChangeText={(text) => {
@@ -174,6 +185,7 @@ export default ({ navigation }: Props) => {
                       borderRadius: 7,
                       paddingHorizontal: 20,
                       paddingVertical: 6,
+                      marginBottom: 10,
                       color: "black",
                     } as TextInputProps["style"]
                   }
@@ -209,23 +221,35 @@ export default ({ navigation }: Props) => {
                     Selecionar do 1º ao 5º
                   </Button>
                   {["1", "2", "3", "4", "5"].map((prizeNumber) => (
-                    <Button
+                    <TouchableWithoutFeedback
                       key={prizeNumber}
-                      variant={
-                        selectedPrizes.includes(prizeNumber)
-                          ? "solid"
-                          : "outline"
-                      }
-                      bg={
-                        selectedPrizes.includes(prizeNumber)
-                          ? "orange.500"
-                          : "white"
-                      }
-                      style={[{ marginBottom: 10 }]}
                       onPress={() => handlePrizeSelection(prizeNumber)}
                     >
-                      {`${prizeNumber}º Prêmio`}
-                    </Button>
+                      <View
+                        style={[
+                          {
+                            marginBottom: 10,
+                            padding: 10,
+                            alignItems: "center",
+                            backgroundColor: selectedPrizes.includes(
+                              prizeNumber
+                            )
+                              ? "#ea580c"
+                              : "white",
+                            borderWidth: 1,
+                            borderColor: "gray",
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={{
+                            color: selectedPrizes.includes(prizeNumber)
+                              ? "white"
+                              : "black",
+                          }}
+                        >{`${prizeNumber}º Prêmio`}</Text>
+                      </View>
+                    </TouchableWithoutFeedback>
                   ))}
                 </>
               )}

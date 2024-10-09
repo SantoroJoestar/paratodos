@@ -24,15 +24,13 @@ import { print } from "../utils/print";
 import { generatePule } from "../utils/generatePule";
 import { GAMES } from "../constants/GAMES";
 
-import { useSettings } from "../providers/SettingsContext";
 import { GameType } from "../types/game.type";
 import { formatterBRL } from "../utils/formatCurrency";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Cart">;
 
 export default ({ route, navigation }: Props) => {
-  const { cart, removeFromCart } = useCart();
-  const { setShowChave, setChaveValendo } = useSettings();
+  const { cart, removeFromCart, setShowChave, setChaveValendo } = useCart();
 
   const confirmBets = async () => {
     // Verificar se há pelo menos uma aposta selecionada
@@ -44,7 +42,7 @@ export default ({ route, navigation }: Props) => {
       return;
     }
 
-    navigation.navigate("ConfirmGame");
+    navigation.replace("ConfirmGame");
     // Navegar para a próxima tela ou realizar outras ações necessárias
   };
 
@@ -113,7 +111,7 @@ export default ({ route, navigation }: Props) => {
         bg={"blue.700"}
         onPress={() => {
           setShowChave(true);
-          navigation.navigate("MenuGames");
+          navigation.replace("MenuGames");
         }}
       >
         Fazer mais Apostas

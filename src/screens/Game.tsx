@@ -16,16 +16,18 @@ import { useCart } from "../providers/CartContext";
 import { GameModel } from "../models/GameModel";
 
 import { RootStackParamList } from "../types/routes.type";
-import { useSettings } from "../providers/SettingsContext";
 import { formatarNumeros } from "../utils/generateChaves";
+import { TitleBack } from "../components/TitleBack";
+import { LoadingScreen } from "./LoadingScreen";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Game">;
 
 export default memo(({ navigation, route }: Props) => {
-  const { type } = route.params;
-  const { currentGame, setCurrentGame, cart } = useCart();
+  const { currentGame, setCurrentGame, cart, chaveValendo } = useCart();
 
-  const { chaveValendo } = useSettings();
+  const { type } = route?.params;
+
+  if (!type) return <LoadingScreen />;
 
   const [number, setNumber] = useState<string>("");
 
@@ -115,7 +117,7 @@ export default memo(({ navigation, route }: Props) => {
         "Adicione pelo menos um número no formato " + TYPE_GAME.format
       );
     } else {
-      navigation.navigate("Prizes", {
+      navigation.replace("Prizes", {
         pule: cart.pule,
       });
     }
@@ -125,9 +127,9 @@ export default memo(({ navigation, route }: Props) => {
     ({ item, index }) => (
       <View style={localStyles.numberItem}>
         <Text style={localStyles.numberText}>{item}</Text>
-        <TouchableOpacity onPress={() => deleteNumber(index)}>
-          <Text style={localStyles.deleteButton}>Apagar</Text>
-        </TouchableOpacity>
+        <Button colorScheme={"red"} onPress={() => deleteNumber(index)}>
+          Apagar
+        </Button>
       </View>
     ),
     [deleteNumber]
@@ -175,40 +177,47 @@ export default memo(({ navigation, route }: Props) => {
   }, [TYPE_GAME, setCurrentGame]);
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <TextInput
-        style={{
-          fontSize: 20,
-          fontWeight: "600",
-          textAlign: "center",
-          borderWidth: 1,
-          borderColor: "blue",
-          borderRadius: 7,
-          paddingHorizontal: 20,
-          backgroundColor: "white",
-          paddingVertical: 6,
-          color: "black",
-        }}
-        value={number}
-        keyboardType="numeric"
-        onChangeText={handleInputChange}
-        maxLength={TYPE_GAME.format.length} // Define o máximo baseado no formato
-        placeholder={TYPE_GAME.format} // Exibe o formato como placeholder
+    <View style={{ flex: 1 }}>
+      <TitleBack
+        navigation={navigation}
+        route={route}
+        title={TYPE_GAME.label}
       />
+      <View style={{ flex: 1, padding: 20 }}>
+        <TextInput
+          style={{
+            fontSize: 20,
+            fontWeight: "600",
+            textAlign: "center",
+            borderWidth: 1,
+            borderColor: "blue",
+            borderRadius: 7,
+            paddingHorizontal: 20,
+            backgroundColor: "white",
+            paddingVertical: 6,
+            color: "black",
+          }}
+          value={number}
+          keyboardType="numeric"
+          onChangeText={handleInputChange}
+          maxLength={TYPE_GAME.format.length} // Define o máximo baseado no formato
+          placeholder={TYPE_GAME.format} // Exibe o formato como placeholder
+        />
 
-      <FlatList
-        style={{ flex: 1, marginVertical: 20 }}
-        data={currentGame.numbers}
-        renderItem={showItem}
-        keyExtractor={(item, index) => index.toString()}
-        extraData={currentGame.numbers}
-      />
+        <FlatList
+          style={{ flex: 1, marginVertical: 20 }}
+          data={currentGame.numbers}
+          renderItem={showItem}
+          keyExtractor={(item, index) => index.toString()}
+          extraData={currentGame.numbers}
+        />
 
-      {/* Grade de botões numéricos */}
+        {/* Grade de botões numéricos */}
 
-      <Button onPress={handleNext} bg="blue.700">
-        Confirmar
-      </Button>
+        <Button onPress={handleNext} bg="blue.700">
+          Confirmar
+        </Button>
+      </View>
     </View>
   );
 });

@@ -26,6 +26,7 @@ import { getAllCombinations } from "../utils/getAllCombinations";
 import { api } from "../services/api";
 import { clone } from "../utils/clone";
 import { formatterBRL } from "../utils/formatCurrency";
+import { TitleBack } from "../components/TitleBack";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ConfirmGame">;
 
@@ -35,7 +36,7 @@ const HourTimesInitial = {
   "19": false,
 };
 
-export default ({ navigation }: Props) => {
+export default ({ route, navigation }: Props) => {
   const { cart, newCart, setCart } = useCart();
   const { user } = useAuth();
 
@@ -137,7 +138,7 @@ export default ({ navigation }: Props) => {
       }
 
       newCart();
-      navigation.navigate("MenuGames");
+      navigation.replace("MenuGames");
     } catch (error: unknown) {
       Alert.alert(
         "Erro",
@@ -161,88 +162,96 @@ export default ({ navigation }: Props) => {
     });
 
   return (
-    <View style={styles.scrollContainer}>
-      <Actionsheet isOpen={isOpen} hideDragIndicator>
-        <Actionsheet.Content>
-          <HStack space={2} py={10} justifyContent="center">
-            <Spinner size={"lg"} />
-            <Heading fontSize="2xl">Carregando...</Heading>
-          </HStack>
-        </Actionsheet.Content>
-      </Actionsheet>
-      <View style={styles.container}>
-        <Button bg={"blue.700"} onPress={() => setShowDatePicker(true)}>
-          {format(date, "EEEE, dd 'de' MMM 'de' yyyy", { locale: ptBR })}
-        </Button>
-        {showDatePicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display="calendar"
-            onChange={onChange}
-            timeZoneName="America/Sao_Paulo"
-            minimumDate={dateNow}
-          />
-        )}
-        <View style={localStyles.timeContainer}>
-          {timesChoose.map((time) => (
-            <Button
-              key={time}
-              bg={
-                selectedTimes?.[time as keyof typeof selectedTimes]
-                  ? "blue.700"
-                  : "gray.400"
-              }
-              onPress={() => toggleTime(time as keyof typeof selectedTimes)}
-            >
-              <Text style={localStyles.timeButtonText}>{time}h</Text>
-            </Button>
-          ))}
+    <View style={{ flex: 1 }}>
+      <TitleBack
+        navigation={navigation}
+        route={route}
+        title={"Confirmar Jogo"}
+      />
+
+      <View style={styles.scrollContainer}>
+        <Actionsheet isOpen={isOpen} hideDragIndicator>
+          <Actionsheet.Content>
+            <HStack space={2} py={10} justifyContent="center">
+              <Spinner size={"lg"} />
+              <Heading fontSize="2xl">Carregando...</Heading>
+            </HStack>
+          </Actionsheet.Content>
+        </Actionsheet>
+        <View style={styles.container}>
+          <Button bg={"blue.700"} onPress={() => setShowDatePicker(true)}>
+            {format(date, "EEEE, dd 'de' MMM 'de' yyyy", { locale: ptBR })}
+          </Button>
+          {showDatePicker && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="calendar"
+              onChange={onChange}
+              timeZoneName="America/Sao_Paulo"
+              minimumDate={dateNow}
+            />
+          )}
+          <View style={localStyles.timeContainer}>
+            {timesChoose.map((time) => (
+              <Button
+                key={time}
+                bg={
+                  selectedTimes?.[time as keyof typeof selectedTimes]
+                    ? "blue.700"
+                    : "gray.400"
+                }
+                onPress={() => toggleTime(time as keyof typeof selectedTimes)}
+              >
+                <Text style={localStyles.timeButtonText}>{time}h</Text>
+              </Button>
+            ))}
+          </View>
+          {timesChoose.length === 0 && (
+            <Text style={localStyles.noTimeText}>
+              Nenhum horário disponível para esta data
+            </Text>
+          )}
+          <View style={localStyles.summaryContainer}>
+            <Text style={localStyles.summaryTitle}>Apostas:</Text>
+            <FlatList
+              style={{ flex: 1 }}
+              data={cart.games}
+              renderItem={({ item }) => (
+                <View style={localStyles.betSummary}>
+                  <Text style={localStyles.summaryText}>
+                    {GAMES[item._id].label}
+                  </Text>
+
+                  <Text style={localStyles.summaryText}>
+                    {item.numbers.join(", ")}
+                  </Text>
+
+                  <Text style={localStyles.summaryText}>
+                    Apostas:{" "}
+                    {item.bets.map(
+                      (bet) =>
+                        formatterBRL(Number(bet.valueBet)) +
+                        " (Prêmios: " +
+                        numbersSelectedFormated(bet.prizes) +
+                        "), " +
+                        "\n"
+                    )}
+                  </Text>
+                </View>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
+
+            <Text style={localStyles.totalText}>
+              Valor Total das Apostas:
+              {formatterBRL(calculateAmountGame(cart.games))}
+            </Text>
+          </View>
+          <Button onPress={confirmBets} bg="blue.700">
+            {loading ? "Carregando..." : "Confirmar"}
+          </Button>
         </View>
-        {timesChoose.length === 0 && (
-          <Text style={localStyles.noTimeText}>
-            Nenhum horário disponível para esta data
-          </Text>
-        )}
-        <View style={localStyles.summaryContainer}>
-          <Text style={localStyles.summaryTitle}>Apostas:</Text>
-          <FlatList
-            style={{ flex: 1 }}
-            data={cart.games}
-            renderItem={({ item }) => (
-              <View style={localStyles.betSummary}>
-                <Text style={localStyles.summaryText}>
-                  {GAMES[item._id].label}
-                </Text>
-
-                <Text style={localStyles.summaryText}>
-                  {item.numbers.join(", ")}
-                </Text>
-
-                <Text style={localStyles.summaryText}>
-                  Apostas:{" "}
-                  {item.bets.map(
-                    (bet) =>
-                      formatterBRL(Number(bet.valueBet)) +
-                      " (Prêmios: " +
-                      numbersSelectedFormated(bet.prizes) +
-                      "), " +
-                      "\n"
-                  )}
-                </Text>
-              </View>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-          />
-
-          <Text style={localStyles.totalText}>
-            Valor Total das Apostas:
-            {formatterBRL(calculateAmountGame(cart.games))}
-          </Text>
-        </View>
-        <Button onPress={confirmBets} bg="blue.700">
-          {loading ? "Carregando..." : "Confirmar"}
-        </Button>
       </View>
     </View>
   );

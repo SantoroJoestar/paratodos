@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 
 import { RootStackParamList } from "../types/routes.type";
@@ -8,57 +8,61 @@ import { GAMES } from "../constants/GAMES";
 
 import { BottomCart } from "../components/BottomCart";
 import { Button, HStack, Switch } from "native-base";
-import { useSettings } from "../providers/SettingsContext";
+
 import { useCart } from "../providers/CartContext";
+import { TitleBack } from "../components/TitleBack";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MenuGames">;
 
-export default ({ navigation }: Props) => {
-  const { chaveValendo, setChaveValendo, showChave } = useSettings();
+export default memo(({ route, navigation }: Props) => {
+  const { chaveValendo, setChaveValendo, showChave } = useCart();
   const { cart } = useCart();
 
   const navigateToGame = useCallback((screen: keyof typeof GAMES) => {
-    navigation.navigate("Game", {
+    navigation.replace("Game", {
       type: screen,
       pule: cart.pule,
     });
   }, []);
 
   return (
-    <BottomCart navigation={navigation}>
-      <ScrollView contentContainerStyle={localStyles.scrollContainer}>
-        <View style={localStyles.container}>
-          {showChave && (
-            <HStack alignItems="center" space={4} mb={5}>
-              <Text style={[localStyles.title, { marginBottom: 0 }]}>
-                CHAVE VALENDO
-              </Text>
-              <Switch
-                size="lg"
-                value={chaveValendo}
-                onValueChange={(newValue) => setChaveValendo(newValue)}
-              />
-            </HStack>
-          )}
-          <View style={localStyles.gridContainer}>
-            {Object.entries(GAMES)
-              .filter(([id, game]) => id !== "")
-              .map(([_, game], index) => (
-                <Button
-                  bg={"blue.700"}
-                  key={index}
-                  style={localStyles.gameButton}
-                  onPress={() => navigateToGame(game.id)}
-                >
-                  <Text style={localStyles.gameButtonText}>{game.label}</Text>
-                </Button>
-              ))}
+    <View style={{ flex: 1 }}>
+      <TitleBack navigation={navigation} route={route} title={"Jogos"} />
+      <BottomCart navigation={navigation}>
+        <ScrollView contentContainerStyle={localStyles.scrollContainer}>
+          <View style={localStyles.container}>
+            {showChave && (
+              <HStack alignItems="center" space={4} mb={5}>
+                <Text style={[localStyles.title, { marginBottom: 0 }]}>
+                  CHAVE VALENDO
+                </Text>
+                <Switch
+                  size="lg"
+                  value={chaveValendo}
+                  onValueChange={(newValue) => setChaveValendo(newValue)}
+                />
+              </HStack>
+            )}
+            <View style={localStyles.gridContainer}>
+              {Object.entries(GAMES)
+                .filter(([id, game]) => id !== "")
+                .map(([_, game], index) => (
+                  <Button
+                    bg={"blue.700"}
+                    key={index}
+                    style={localStyles.gameButton}
+                    onPress={() => navigateToGame(game.id)}
+                  >
+                    <Text style={localStyles.gameButtonText}>{game.label}</Text>
+                  </Button>
+                ))}
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </BottomCart>
+        </ScrollView>
+      </BottomCart>
+    </View>
   );
-};
+});
 
 const localStyles = StyleSheet.create({
   scrollContainer: {

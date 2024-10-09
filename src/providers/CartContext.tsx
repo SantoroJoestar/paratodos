@@ -8,8 +8,15 @@ const _controllerCart = () => {
   const [currentGame, setCurrentGame] = useState<GameType>(GameModel());
   const [cart, setCart] = useState<CartType>(CartModel());
 
+  const [chaveValendo, setChaveValendo] = useState(false);
+  const [showChave, setShowChave] = useState(false);
+
   // Função para resetar o carrinho
-  const newCart = useCallback(() => setCart(CartModel()), []);
+  const newCart = useCallback(() => {
+    setCart(CartModel());
+    setShowChave(false);
+    setChaveValendo(false);
+  }, []);
 
   // Função para remover um jogo do carrinho por índice
   const removeFromCart = useCallback((index: number) => {
@@ -26,6 +33,10 @@ const _controllerCart = () => {
     currentGame,
     setCurrentGame,
     removeFromCart,
+    chaveValendo,
+    setChaveValendo,
+    showChave,
+    setShowChave,
   };
 };
 

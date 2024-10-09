@@ -9,18 +9,16 @@ import { GAMES } from "../constants/GAMES";
 import { calculateAmountGame } from "./calculateAmountGame";
 import { numbersSelectedFormated } from "./numbersSelectedFormated";
 import { UserType } from "../types/user.type";
-import { convertImageToBase64 } from "./convertImageToBase64";
-import { moveImageToFileSystem } from "./moveImagetToFileSystem";
 
 export const print = async (cart: CartType, cambista: UserType) => {
   try {
     await SunmiPrinterLibrary.prepare();
 
-    const imagePath = await moveImageToFileSystem();
+    // const imagePath = await moveImageToFileSystem();
 
-    const imageBase64 = await convertImageToBase64(imagePath)
+    // const imageBase64 = await convertImageToBase64(imagePath)
 
-    await SunmiPrinterLibrary.printImage(imageBase64, 10, "grayscale")
+    // await SunmiPrinterLibrary.printImage(imageBase64, 10, "grayscale")
 
     const header = `
 Paratodos

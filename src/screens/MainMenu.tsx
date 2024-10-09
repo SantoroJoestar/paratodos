@@ -7,10 +7,11 @@ import { RootStackParamList } from "../types/routes.type";
 import { BottomCart } from "../components/BottomCart";
 import { Button, Divider, ScrollView } from "native-base";
 import { useAuth } from "../providers/AuthContext";
+import { Title } from "../components/Title";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MainMenu">;
 
-export default ({ navigation }: Props) => {
+export default ({ route, navigation }: Props) => {
   const { logout } = useAuth();
 
   const handleLogout = () => {
@@ -18,63 +19,66 @@ export default ({ navigation }: Props) => {
   };
 
   return (
-    <BottomCart navigation={navigation}>
-      <ScrollView style={styles.container}>
-        <Button
-          bg={"yellow.600"}
-          onPress={() => navigation.navigate("MenuGames")}
-        >
-          <Text style={localStyles.menuButtonText}>JOGOS</Text>
-        </Button>
-        <Divider
-          my="5"
-          _light={{
-            bg: "muted.800",
-          }}
-        />
+    <View style={{ flex: 1 }}>
+      <Title navigation={navigation} route={route} title={"Menu Principal"} />
+      <BottomCart navigation={navigation}>
+        <ScrollView style={styles.container}>
+          <Button
+            bg={"yellow.600"}
+            onPress={() => navigation.replace("MenuGames")}
+          >
+            <Text style={localStyles.menuButtonText}>JOGOS</Text>
+          </Button>
+          <Divider
+            my="5"
+            _light={{
+              bg: "muted.800",
+            }}
+          />
 
-        <Button bg={"blue.700"} onPress={() => navigation.navigate("Scanner")}>
-          <Text style={localStyles.menuButtonText}>REPETIR PULE</Text>
-        </Button>
-        <Button bg={"blue.700"} mt={3}>
-          <Text style={localStyles.menuButtonText}>VENDAS DO DIA</Text>
-        </Button>
-        <Button bg={"blue.700"} mt={3}>
-          <Text style={localStyles.menuButtonText}>RESULTADO DO DIA</Text>
-        </Button>
-        <Button bg={"blue.700"} mt={3}>
-          <Text style={localStyles.menuButtonText}>MILHARES COTADAS</Text>
-        </Button>
-        <Button bg={"blue.700"} mt={3}>
-          <Text style={localStyles.menuButtonText}>PULE PREMIADA</Text>
-        </Button>
-        <Button bg={"blue.700"} mt={3}>
-          <Text style={localStyles.menuButtonText}>CANCELAMENTO DE PULE</Text>
-        </Button>
-        <Divider
-          my="5"
-          _light={{
-            bg: "muted.800",
-          }}
-        />
-        <Button
-          bg={"blue.700"}
-          mt={0}
-          onPress={() => navigation.navigate("Profile")}
-        >
-          <Text style={localStyles.menuButtonText}>MEU PERFIL</Text>
-        </Button>
-        <Divider
-          my="5"
-          _light={{
-            bg: "muted.800",
-          }}
-        />
-        <Button bg={"red.500"} onPress={handleLogout}>
-          <Text style={localStyles.menuButtonText}>SAIR</Text>
-        </Button>
-      </ScrollView>
-    </BottomCart>
+          <Button bg={"blue.700"} onPress={() => navigation.replace("Scanner")}>
+            <Text style={localStyles.menuButtonText}>REPETIR PULE</Text>
+          </Button>
+          <Button bg={"blue.700"} mt={3}>
+            <Text style={localStyles.menuButtonText}>VENDAS DO DIA</Text>
+          </Button>
+          <Button bg={"blue.700"} mt={3}>
+            <Text style={localStyles.menuButtonText}>RESULTADO DO DIA</Text>
+          </Button>
+          <Button bg={"blue.700"} mt={3}>
+            <Text style={localStyles.menuButtonText}>MILHARES COTADAS</Text>
+          </Button>
+          <Button bg={"blue.700"} mt={3}>
+            <Text style={localStyles.menuButtonText}>PULE PREMIADA</Text>
+          </Button>
+          <Button bg={"blue.700"} mt={3}>
+            <Text style={localStyles.menuButtonText}>CANCELAMENTO DE PULE</Text>
+          </Button>
+          <Divider
+            my="5"
+            _light={{
+              bg: "muted.800",
+            }}
+          />
+          <Button
+            bg={"blue.700"}
+            mt={0}
+            onPress={() => navigation.navigate("Profile")}
+          >
+            <Text style={localStyles.menuButtonText}>MEU PERFIL</Text>
+          </Button>
+          <Divider
+            my="5"
+            _light={{
+              bg: "muted.800",
+            }}
+          />
+          <Button bg={"red.500"} onPress={handleLogout}>
+            <Text style={localStyles.menuButtonText}>SAIR</Text>
+          </Button>
+        </ScrollView>
+      </BottomCart>
+    </View>
   );
 };
 
